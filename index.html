@@ -70,7 +70,6 @@
 
     <main class="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        <!-- COLUMNA IZQUIERDA: GESTIÓN DE DESTINATARIOS -->
         <div class="lg:col-span-5 flex flex-col gap-6">
             
             <div class="glass-panel p-6 rounded-sm flex flex-col gap-4">
@@ -95,7 +94,6 @@
                     <button onclick="importarListaMasiva()" class="bg-blue-neon/20 border border-blue-neon text-cyan-neon py-2 text-xs font-bold hover:bg-blue-neon/30 transition-all rounded-sm">IMPORTAR LISTA</button>
                 </div>
 
-                <!-- Lista Visual de Destinatarios -->
                 <div class="mt-2">
                     <div class="text-xs text-cyan-neon/60 mb-2">Cola de envío activa:</div>
                     <div id="lista-destinatarios-container" class="max-h-48 overflow-y-auto flex flex-col gap-1.5 pr-1">
@@ -116,7 +114,6 @@
 
         </div>
 
-        <!-- COLUMNA DERECHA: COMPOSICIÓN DE LA CARTA Y ENVÍO -->
         <div class="lg:col-span-7 flex flex-col gap-6">
             
             <div class="glass-panel p-6 rounded-sm flex flex-col gap-5 flex-grow">
@@ -134,7 +131,7 @@
 
                 <div class="flex flex-col gap-2 flex-grow">
                     <label class="text-xs text-cyan-neon/70">Cuerpo del Mensaje:</label>
-                    <textarea id="input-cuerpo" rows="14" class="w-full p-3 text-xs rounded-sm leading-relaxed resize-y font-mono">Estimado/a [Empresa / Responsable],
+                    <textarea id="input-cuerpo" rows="12" class="w-full p-3 text-xs rounded-sm leading-relaxed resize-y font-mono">Estimado/a [Empresa / Responsable],
 
 Me dirijo a usted en representación de SlotSoftware, desarrolladores de un ecosistema digital avanzado diseñado exclusivamente para modernizar y potenciar el automodelismo de ranura (Slot).
 
@@ -155,13 +152,12 @@ Albert Closa
 SlotSoftware</textarea>
                 </div>
 
-                <!-- Botones de Acción -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-cyan-neon/20">
                     <button onclick="copiarCarta()" class="bg-cyan-neon/10 border border-cyan-neon text-cyan-neon py-3 text-xs font-bold hover:bg-cyan-neon/20 transition-all rounded-sm flex items-center justify-center gap-2">
                         <i data-lucide="copy" class="w-4 h-4"></i> COPIAR CARTA
                     </button>
-                    <button onclick="enviarCorreoMasivoCliente()" class="bg-cyan-neon text-black py-3 text-xs font-bold hover:bg-cyan-neon/80 transition-all rounded-sm flex items-center justify-center gap-2">
-                        <i data-lucide="send" class="w-4 h-4"></i> ABRIR EN GMAIL
+                    <button onclick="enviarCorreoMasivoCliente()" class="bg-cyan-neon text-black py-3 text-xs font-bold hover:bg-cyan-neon/80 transition-all rounded-sm flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(0,229,255,0.4)]">
+                        <i data-lucide="send" class="w-4 h-4"></i> REDACTAR / ENVIAR
                     </button>
                 </div>
             </div>
@@ -170,16 +166,14 @@ SlotSoftware</textarea>
 
     </main>
 
-    <!-- Modal de Notificación Personalizado -->
     <div id="modal-aviso" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
         <div class="glass-panel max-w-md w-full p-6 rounded-sm text-center flex flex-col gap-4">
             <h3 id="modal-titulo" class="font-sans font-bold text-cyan-neon text-base">AVISO DEL SISTEMA</h3>
             <div id="modal-texto" class="text-xs text-gray-300 leading-relaxed"></div>
-            <button onclick="cerrarModal()" class="border border-cyan-neon text-cyan-neon py-2 text-xs font-bold hover:bg-cyan-neon/20 transition-all rounded-sm mt-2">CERRAR AVISO</button>
+            <button onclick="cerrarModal()" class="border border-cyan-neon text-cyan-neon py-2 text-xs font-bold hover:bg-cyan-neon/20 transition-all rounded-sm mt-2">CERRAR</button>
         </div>
     </div>
 
-    <!-- SCRIPT DE FUNCIONALIDAD DE LA APLICACIÓN -->
     <script>
         lucide.createIcons();
 
@@ -191,6 +185,7 @@ SlotSoftware</textarea>
             const modal = document.getElementById('modal-aviso');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
+            lucide.createIcons(); // Recargar iconos dentro del modal si los hay
         }
 
         function cerrarModal() {
@@ -305,36 +300,41 @@ SlotSoftware</textarea>
         }
 
         function enviarCorreoMasivoCliente() {
-            // Obtenemos los textos en su estado natural
-            const asuntoTexto = document.getElementById('input-asunto').value;
-            const cuerpoTexto = obtenerCuerpoPersonalizado();
+            // Obtenemos textos crudos
+            const asuntoRaw = document.getElementById('input-asunto').value;
+            const cuerpoRaw = obtenerCuerpoPersonalizado();
+            const bccRaw = listaEmails.join(',');
 
-            // Usamos encodeURIComponent de forma estricta para garantizar
-            // que los saltos de línea (\n) y caracteres se pasen a Gmail perfectamente
-            const asuntoCodificado = encodeURIComponent(asuntoTexto);
-            const cuerpoCodificado = encodeURIComponent(cuerpoTexto);
+            // Codificamos correctamente para URL (es vital para que los saltos de línea \n se mantengan)
+            const asunto = encodeURIComponent(asuntoRaw);
+            const cuerpo = encodeURIComponent(cuerpoRaw);
+            const bcc = encodeURIComponent(bccRaw);
 
-            // Preparamos los destinatarios ocultos si los hay
-            const destinatariosBCC = listaEmails.length > 0 ? encodeURIComponent(listaEmails.join(',')) : '';
-            
-            // Construimos la URL específica para abrir Gmail en la web (view=cm es Compose Message)
-            const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=&su=${asuntoCodificado}&body=${cuerpoCodificado}&bcc=${destinatariosBCC}`;
+            // OPCIÓN 1: Enlace Web de Gmail limpio (solo usamos bcc, su y body)
+            let gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&su=${asunto}&body=${cuerpo}`;
+            if (bcc) gmailLink += `&bcc=${bcc}`;
 
-            // Creamos un botón HTML seguro en el modal para que hagas clic, esto
-            // evita absolutamente que el navegador bloquee la apertura de Gmail
-            let mensajeHTML = `
+            // OPCIÓN 2: Protocolo Mailto estándar (funciona a nivel de sistema operativo)
+            let mailtoLink = `mailto:?subject=${asunto}&body=${cuerpo}`;
+            if (bcc) mailtoLink = `mailto:?bcc=${bcc}&subject=${asunto}&body=${cuerpo}`;
+
+            let modalHTML = `
                 <div class="flex flex-col gap-4 items-center">
                     <p class="text-xs text-gray-300 leading-relaxed text-left">
-                        Haz clic en el botón inferior. Se abrirá una ventana de <strong>Gmail</strong> con tu carta y tu asunto perfectamente rellenados.
+                        Para evitar bloqueos de seguridad del navegador, selecciona cómo quieres redactar el correo:
                     </p>
-                    <a href="${gmailLink}" target="_blank" rel="noopener noreferrer" onclick="cerrarModal()" class="bg-cyan-neon text-black px-6 py-4 rounded-sm font-bold tracking-widest text-sm hover:bg-cyan-neon/80 transition-colors w-full text-center mt-2 flex items-center justify-center gap-2">
-                        <i data-lucide="mail" class="w-5 h-5"></i> ENVIAR MEDIANTE GMAIL
+                    
+                    <a href="${gmailLink}" target="_blank" rel="noopener noreferrer" onclick="cerrarModal()" class="bg-red-500/10 border border-red-500 text-red-400 px-4 py-3 rounded-sm font-bold tracking-widest text-xs hover:bg-red-500/30 hover:text-white transition-all w-full text-center flex items-center justify-center gap-2">
+                        <i data-lucide="chrome" class="w-4 h-4"></i> ABRIR GMAIL (NAVEGADOR)
+                    </a>
+
+                    <a href="${mailtoLink}" onclick="cerrarModal()" class="bg-cyan-neon/20 border border-cyan-neon text-cyan-neon px-4 py-3 rounded-sm font-bold tracking-widest text-xs hover:bg-cyan-neon/40 hover:text-white transition-all w-full text-center flex items-center justify-center gap-2">
+                        <i data-lucide="mail" class="w-4 h-4"></i> ABRIR APP CORREO DEL SISTEMA
                     </a>
                 </div>
             `;
             
-            mostrarModal("LISTO PARA ABRIR GMAIL", mensajeHTML);
-            lucide.createIcons(); // Recargar iconos del modal
+            mostrarModal("ENLACE DE REDACCIÓN GENERADO", modalHTML);
         }
     </script>
 </body>
