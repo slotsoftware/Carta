@@ -102,6 +102,7 @@
                 </div>
             </div>
 
+            <!-- Panel de Configuración de Enlace Web -->
             <div class="glass-panel p-6 rounded-sm flex flex-col gap-4">
                 <h3 class="font-sans font-bold text-cyan-neon text-sm tracking-wider flex items-center gap-2 border-b border-cyan-neon/20 pb-3">
                     <i data-lucide="link" class="w-4 h-4"></i> ENLACE A TU APP / WEB
@@ -130,26 +131,18 @@
                 </div>
 
                 <div class="flex flex-col gap-2 flex-grow">
-                    <label class="text-xs text-cyan-neon/70">Cuerpo del Mensaje:</label>
-                    <textarea id="input-cuerpo" rows="12" class="w-full p-3 text-xs rounded-sm leading-relaxed resize-y font-mono">Estimado/a [Empresa / Responsable],
-
-Me dirijo a usted en representación de SlotSoftware, desarrolladores de un ecosistema digital avanzado diseñado exclusivamente para modernizar y potenciar el automodelismo de ranura (Slot).
-
-Conociendo la trayectoria de su establecimiento en el sector, nos gustaría presentarle nuestra suite de aplicaciones de cronometraje, telemetría y simulación 3D sin necesidad de costoso hardware adicional (funciona directamente mediante la cámara y el navegador).
-
-Principales soluciones para ofrecer a sus clientes:
-- Krono V.4.0 (Personal y Dual): Fotodetector profesional con IA a 30/60fps y Modo TV en Smart TV vía nube.
-- Tracks Telemetry: Simulador 3D de circuitos de hasta 8 carriles con físicas reales y configuración de motores/neumáticos.
-- Arquitectura Multijugador P2P en tiempo real.
-
-Le invitamos a explorar nuestro entorno interactivo y catálogo visual en el siguiente enlace:
-https://slotsoftware.github.io/Web/
-
-Nos encantaría programar una breve reunión para mostrarle el funcionamiento en vivo. Quedo a su entera disposición.
-
-Atentamente,
-Albert Closa
-SlotSoftware</textarea>
+                    <div class="flex justify-between items-end">
+                        <label class="text-xs text-cyan-neon/70">Cuerpo del Mensaje:</label>
+                        <div class="flex gap-2">
+                            <button onclick="guardarPlantilla()" class="flex items-center gap-1 bg-cyan-neon/20 border border-cyan-neon/50 text-cyan-neon px-3 py-1 text-[10px] uppercase font-bold hover:bg-cyan-neon/40 transition-all rounded-sm">
+                                <i data-lucide="save" class="w-3 h-3"></i> Guardar Plantilla
+                            </button>
+                            <button onclick="restaurarPlantilla()" class="flex items-center gap-1 bg-red-500/20 border border-red-500/50 text-red-400 px-3 py-1 text-[10px] uppercase font-bold hover:bg-red-500/40 transition-all rounded-sm">
+                                <i data-lucide="rotate-ccw" class="w-3 h-3"></i> Restaurar Original
+                            </button>
+                        </div>
+                    </div>
+                    <textarea id="input-cuerpo" rows="12" class="w-full p-3 text-xs rounded-sm leading-relaxed resize-y font-mono"></textarea>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-cyan-neon/20">
@@ -179,13 +172,69 @@ SlotSoftware</textarea>
 
         let listaEmails = [];
 
+        const ASUNTO_POR_DEFECTO = "Propuesta de colaboración: Innovación tecnológica para el automodelismo de ranura (SlotSoftware)";
+        const CUERPO_POR_DEFECTO = `Estimado/a [Empresa / Responsable],
+
+Me dirijo a usted en representación de SlotSoftware, desarrolladores de un ecosistema digital avanzado diseñado exclusivamente para modernizar y potenciar el automodelismo de ranura (Slot).
+
+Conociendo la trayectoria de su establecimiento en el sector, nos gustaría presentarle nuestra suite de aplicaciones de cronometraje, telemetría y simulación 3D sin necesidad de costoso hardware adicional (funciona directamente mediante la cámara y el navegador).
+
+Principales soluciones para ofrecer a sus clientes:
+- Krono V.4.0 (Personal y Dual): Fotodetector profesional con IA a 30/60fps y Modo TV en Smart TV vía nube.
+- Tracks Telemetry: Simulador 3D de circuitos de hasta 8 carriles con físicas reales y configuración de motores/neumáticos.
+- Arquitectura Multijugador P2P en tiempo real.
+
+Le invitamos a explorar nuestro entorno interactivo y catálogo visual en el siguiente enlace:
+https://slotsoftware.github.io/Web/
+
+Nos encantaría programar una breve reunión para mostrarle el funcionamiento en vivo. Quedo a su entera disposición.
+
+Atentamente,
+Albert Closa
+SlotSoftware`;
+
+        // Al cargar la página, inicializamos la plantilla
+        window.onload = function() {
+            cargarPlantilla();
+        };
+
+        function guardarPlantilla() {
+            const asunto = document.getElementById('input-asunto').value;
+            const cuerpo = document.getElementById('input-cuerpo').value;
+            
+            localStorage.setItem('slot_asunto', asunto);
+            localStorage.setItem('slot_cuerpo', cuerpo);
+            
+            mostrarModal("PLANTILLA GUARDADA", "Tu carta y asunto se han guardado en este navegador. Se cargarán automáticamente la próxima vez que abras esta herramienta.");
+        }
+
+        function cargarPlantilla() {
+            const guardadoAsunto = localStorage.getItem('slot_asunto');
+            const guardadoCuerpo = localStorage.getItem('slot_cuerpo');
+
+            // Si hay algo guardado, lo cargamos. Si no, cargamos lo predeterminado.
+            document.getElementById('input-asunto').value = guardadoAsunto !== null ? guardadoAsunto : ASUNTO_POR_DEFECTO;
+            document.getElementById('input-cuerpo').value = guardadoCuerpo !== null ? guardadoCuerpo : CUERPO_POR_DEFECTO;
+        }
+
+        function restaurarPlantilla() {
+            document.getElementById('input-asunto').value = ASUNTO_POR_DEFECTO;
+            document.getElementById('input-cuerpo').value = CUERPO_POR_DEFECTO;
+            
+            // Borramos lo guardado
+            localStorage.removeItem('slot_asunto');
+            localStorage.removeItem('slot_cuerpo');
+            
+            mostrarModal("PLANTILLA RESTAURADA", "Se ha vuelto a la carta original de SlotSoftware.");
+        }
+
         function mostrarModal(titulo, texto) {
             document.getElementById('modal-titulo').innerText = titulo;
             document.getElementById('modal-texto').innerHTML = texto;
             const modal = document.getElementById('modal-aviso');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
-            lucide.createIcons(); // Recargar iconos dentro del modal si los hay
+            lucide.createIcons();
         }
 
         function cerrarModal() {
@@ -300,41 +349,39 @@ SlotSoftware</textarea>
         }
 
         function enviarCorreoMasivoCliente() {
-            // Obtenemos textos crudos
-            const asuntoRaw = document.getElementById('input-asunto').value;
-            const cuerpoRaw = obtenerCuerpoPersonalizado();
-            const bccRaw = listaEmails.join(',');
+            // Obtenemos los textos tal y como están en los campos
+            const asunto = document.getElementById('input-asunto').value;
+            const cuerpo = obtenerCuerpoPersonalizado();
 
-            // Codificamos correctamente para URL (es vital para que los saltos de línea \n se mantengan)
-            const asunto = encodeURIComponent(asuntoRaw);
-            const cuerpo = encodeURIComponent(cuerpoRaw);
-            const bcc = encodeURIComponent(bccRaw);
+            // Preparamos los destinatarios ocultos si los hay
+            const destinatariosBCC = listaEmails.length > 0 ? listaEmails.join(',') : '';
+            
+            // 1. URL GMAIL
+            const baseUrl = "https://mail.google.com/mail/?view=cm&fs=1";
+            const toParam = "&to=";
+            const suParam = "&su=" + encodeURIComponent(asunto);
+            const bodyParam = "&body=" + encodeURIComponent(cuerpo);
+            const bccParam = destinatariosBCC ? "&bcc=" + encodeURIComponent(destinatariosBCC) : "";
+            const gmailLink = baseUrl + toParam + suParam + bodyParam + bccParam;
 
-            // OPCIÓN 1: Enlace Web de Gmail limpio (solo usamos bcc, su y body)
-            let gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&su=${asunto}&body=${cuerpo}`;
-            if (bcc) gmailLink += `&bcc=${bcc}`;
-
-            // OPCIÓN 2: Protocolo Mailto estándar (funciona a nivel de sistema operativo)
-            let mailtoLink = `mailto:?subject=${asunto}&body=${cuerpo}`;
-            if (bcc) mailtoLink = `mailto:?bcc=${bcc}&subject=${asunto}&body=${cuerpo}`;
+            // 2. URL APP SISTEMA (MAILTO)
+            const mailtoLink = `mailto:?bcc=${encodeURIComponent(destinatariosBCC)}&subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
 
             let modalHTML = `
                 <div class="flex flex-col gap-4 items-center">
-                    <p class="text-xs text-gray-300 leading-relaxed text-left">
-                        Para evitar bloqueos de seguridad del navegador, selecciona cómo quieres redactar el correo:
-                    </p>
+                    <p class="text-xs text-gray-300 leading-relaxed text-left">El entorno seguro requiere que hagas clic en uno de los siguientes botones para abrir tu gestor con todos los datos cargados (Asunto, Carta y Correos Ocultos).</p>
                     
-                    <a href="${gmailLink}" target="_blank" rel="noopener noreferrer" onclick="cerrarModal()" class="bg-red-500/10 border border-red-500 text-red-400 px-4 py-3 rounded-sm font-bold tracking-widest text-xs hover:bg-red-500/30 hover:text-white transition-all w-full text-center flex items-center justify-center gap-2">
-                        <i data-lucide="chrome" class="w-4 h-4"></i> ABRIR GMAIL (NAVEGADOR)
+                    <a href="${gmailLink}" target="_blank" rel="noopener noreferrer" onclick="cerrarModal()" class="bg-red-500/10 border border-red-500 text-red-400 px-4 py-3 rounded-sm font-bold tracking-widest text-[10px] hover:bg-red-500/30 hover:text-white transition-all w-full text-center flex items-center justify-center gap-2">
+                        <i data-lucide="chrome" class="w-4 h-4"></i> ABRIR GMAIL EN NAVEGADOR
                     </a>
 
-                    <a href="${mailtoLink}" onclick="cerrarModal()" class="bg-cyan-neon/20 border border-cyan-neon text-cyan-neon px-4 py-3 rounded-sm font-bold tracking-widest text-xs hover:bg-cyan-neon/40 hover:text-white transition-all w-full text-center flex items-center justify-center gap-2">
-                        <i data-lucide="mail" class="w-4 h-4"></i> ABRIR APP CORREO DEL SISTEMA
+                    <a href="${mailtoLink}" onclick="cerrarModal()" class="bg-cyan-neon/20 border border-cyan-neon text-cyan-neon px-4 py-3 rounded-sm font-bold tracking-widest text-[10px] hover:bg-cyan-neon/40 hover:text-white transition-all w-full text-center flex items-center justify-center gap-2">
+                        <i data-lucide="mail" class="w-4 h-4"></i> ABRIR APP DE CORREO (SISTEMA)
                     </a>
                 </div>
             `;
             
-            mostrarModal("ENLACE DE REDACCIÓN GENERADO", modalHTML);
+            mostrarModal("SELECCIONA CÓMO ENVIAR", modalHTML);
         }
     </script>
 </body>
