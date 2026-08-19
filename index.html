@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SlotSoftware | Gestor de Campañas B2B</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'cyan-neon': '#00e5ff',
+                        'blue-neon': '#0066ff',
+                        'dark-abyss': '#00040c',
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                        mono: ['Share Tech Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #000205;
+            color: #ffffff;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        .glass-panel {
+            background: rgba(0, 10, 25, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 229, 255, 0.25);
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.08) inset, 0 8px 32px rgba(0, 0, 0, 0.8);
+        }
+        input, textarea, select {
+            background: rgba(0, 229, 255, 0.03) !important;
+            border: 1px solid rgba(0, 229, 255, 0.2) !important;
+            color: #ffffff !important;
+            font-family: 'Share Tech Mono', monospace !important;
+        }
+        input:focus, textarea:focus, select:focus {
+            border-color: #00e5ff !important;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.25) inset !important;
+            outline: none;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.4); }
+        ::-webkit-scrollbar-thumb { background: rgba(0, 229, 255, 0.3); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0, 229, 255, 0.6); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="border-b border-cyan-neon/20 bg-dark-abyss/90 sticky top-0 z-50 px-6 py-4 flex justify-between items-center backdrop-blur-md">
+        <div class="flex items-center gap-3">
+            <div class="w-3 h-3 bg-cyan-neon rounded-full animate-ping"></div>
+            <h1 class="text-lg font-bold font-sans tracking-widest text-cyan-neon">SLOTSOFTWARE // <span class="text-white text-xs font-mono">B2B MAILER</span></h1>
+        </div>
+        <div class="flex items-center gap-4 text-xs">
+            <span class="text-cyan-neon/70 hidden sm:inline">ESTADO: <span id="sys-status" class="text-green-400">LISTO PARA ENVÍO</span></span>
+        </div>
+    </header>
+
+    <main class="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- COLUMNA IZQUIERDA: GESTIÓN DE DESTINATARIOS -->
+        <div class="lg:col-span-5 flex flex-col gap-6">
+            
+            <div class="glass-panel p-6 rounded-sm flex flex-col gap-4">
+                <div class="flex justify-between items-center border-b border-cyan-neon/20 pb-3">
+                    <h2 class="font-sans font-bold text-cyan-neon text-sm tracking-wider flex items-center gap-2">
+                        <i data-lucide="users" class="w-4 h-4"></i> DESTINATARIOS (<span id="contador-emails">0</span>)
+                    </h2>
+                    <button onclick="limpiarEmails()" class="text-xs text-red-400 hover:text-red-300 transition-colors">Limpiar</button>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs text-cyan-neon/70">Añadir Correo Individual:</label>
+                    <div class="flex gap-2">
+                        <input type="email" id="input-email" placeholder="tienda@ejemplo.com" class="flex-grow p-2 text-sm rounded-sm">
+                        <button onclick="agregarEmail()" class="bg-cyan-neon/10 border border-cyan-neon text-cyan-neon px-4 py-2 text-xs font-bold hover:bg-cyan-neon/20 transition-all rounded-sm">AÑADIR</button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs text-cyan-neon/70">O pegar lista masiva (separados por comas o saltos de línea):</label>
+                    <textarea id="textarea-masivo" rows="3" placeholder="tienda1@slot.com, tienda2@slot.com..." class="p-2 text-xs rounded-sm resize-none"></textarea>
+                    <button onclick="importarListaMasiva()" class="bg-blue-neon/20 border border-blue-neon text-cyan-neon py-2 text-xs font-bold hover:bg-blue-neon/30 transition-all rounded-sm">IMPORTAR LISTA</button>
+                </div>
+
+                <!-- Lista Visual de Destinatarios -->
+                <div class="mt-2">
+                    <div class="text-xs text-cyan-neon/60 mb-2">Cola de envío activa:</div>
+                    <div id="lista-destinatarios-container" class="max-h-48 overflow-y-auto flex flex-col gap-1.5 pr-1">
+                        <div class="text-xs text-gray-500 italic p-2 bg-black/40 text-center">No hay correos agregados todavía.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel p-6 rounded-sm flex flex-col gap-4">
+                <h3 class="font-sans font-bold text-cyan-neon text-sm tracking-wider flex items-center gap-2 border-b border-cyan-neon/20 pb-3">
+                    <i data-lucide="link" class="w-4 h-4"></i> ENLACE A TU APP / WEB
+                </h3>
+                <div>
+                    <label class="text-xs text-cyan-neon/70 mb-1 block">URL de tu web interactiva / presentación:</label>
+                    <input type="text" id="input-url-web" value="https://slotsoftware.github.io/Web/" class="w-full p-2.5 text-xs rounded-sm text-cyan-neon font-bold">
+                </div>
+            </div>
+
+        </div>
+
+        <!-- COLUMNA DERECHA: COMPOSICIÓN DE LA CARTA Y ENVÍO -->
+        <div class="lg:col-span-7 flex flex-col gap-6">
+            
+            <div class="glass-panel p-6 rounded-sm flex flex-col gap-5 flex-grow">
+                <div class="flex justify-between items-center border-b border-cyan-neon/20 pb-3">
+                    <h2 class="font-sans font-bold text-cyan-neon text-sm tracking-wider flex items-center gap-2">
+                        <i data-lucide="file-text" class="w-4 h-4"></i> COMPOSICIÓN DE LA CARTA COMERCIAL
+                    </h2>
+                    <span class="text-xs text-cyan-neon/60">Plantilla Profesional B2B</span>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs text-cyan-neon/70">Asunto del Correo:</label>
+                    <input type="text" id="input-asunto" value="Propuesta de colaboración: Innovación tecnológica para el automodelismo de ranura (SlotSoftware)" class="w-full p-2.5 text-xs rounded-sm">
+                </div>
+
+                <div class="flex flex-col gap-2 flex-grow">
+                    <label class="text-xs text-cyan-neon/70">Cuerpo del Mensaje:</label>
+                    <textarea id="input-cuerpo" rows="14" class="w-full p-3 text-xs rounded-sm leading-relaxed resize-y font-mono">Estimado/a [Empresa / Responsable],
+
+Me dirijo a usted en representación de SlotSoftware, desarrolladores de un ecosistema digital avanzado diseñado exclusivamente para modernizar y potenciar el automodelismo de ranura (Slot).
+
+Conociendo la trayectoria de su establecimiento en el sector, nos gustaría presentarle nuestra suite de aplicaciones de cronometraje, telemetría y simulación 3D sin necesidad de costoso hardware adicional (funciona directamente mediante la cámara y el navegador).
+
+Principales soluciones para ofrecer a sus clientes:
+- Krono V.4.0 (Personal y Dual): Fotodetector profesional con IA a 30/60fps y Modo TV en Smart TV vía nube.
+- Tracks Telemetry: Simulador 3D de circuitos de hasta 8 carriles con físicas reales y configuración de motores/neumáticos.
+- Arquitectura Multijugador P2P en tiempo real.
+
+Le invitamos a explorar nuestro entorno interactivo y catálogo visual en el siguiente enlace:
+https://slotsoftware.github.io/Web/
+
+Nos encantaría programar una breve reunión para mostrarle el funcionamiento en vivo. Quedo a su entera disposición.
+
+Atentamente,
+Albert Closa
+SlotSoftware</textarea>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-cyan-neon/20">
+                    <button onclick="copiarCarta()" class="bg-cyan-neon/10 border border-cyan-neon text-cyan-neon py-3 text-xs font-bold hover:bg-cyan-neon/20 transition-all rounded-sm flex items-center justify-center gap-2">
+                        <i data-lucide="copy" class="w-4 h-4"></i> COPIAR CARTA
+                    </button>
+                    <button onclick="enviarCorreoMasivoCliente()" class="bg-cyan-neon text-black py-3 text-xs font-bold hover:bg-cyan-neon/80 transition-all rounded-sm flex items-center justify-center gap-2">
+                        <i data-lucide="send" class="w-4 h-4"></i> ABRIR EN GMAIL
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Modal de Notificación Personalizado -->
+    <div id="modal-aviso" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="glass-panel max-w-md w-full p-6 rounded-sm text-center flex flex-col gap-4">
+            <h3 id="modal-titulo" class="font-sans font-bold text-cyan-neon text-base">AVISO DEL SISTEMA</h3>
+            <div id="modal-texto" class="text-xs text-gray-300 leading-relaxed"></div>
+            <button onclick="cerrarModal()" class="border border-cyan-neon text-cyan-neon py-2 text-xs font-bold hover:bg-cyan-neon/20 transition-all rounded-sm mt-2">CERRAR AVISO</button>
+        </div>
+    </div>
+
+    <!-- SCRIPT DE FUNCIONALIDAD DE LA APLICACIÓN -->
+    <script>
+        lucide.createIcons();
+
+        let listaEmails = [];
+
+        function mostrarModal(titulo, texto) {
+            document.getElementById('modal-titulo').innerText = titulo;
+            document.getElementById('modal-texto').innerHTML = texto;
+            const modal = document.getElementById('modal-aviso');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function cerrarModal() {
+            const modal = document.getElementById('modal-aviso');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+
+        function agregarEmail() {
+            const input = document.getElementById('input-email');
+            const email = input.value.trim();
+            if(!email) return;
+            
+            if(!email.includes('@') || !email.includes('.')) {
+                mostrarModal("ERROR DE FORMATO", "El correo introducido no parece válido.");
+                return;
+            }
+
+            if(listaEmails.includes(email)) {
+                mostrarModal("AVISO", "Este correo ya se encuentra en la lista de envío.");
+                return;
+            }
+
+            listaEmails.push(email);
+            input.value = '';
+            actualizarListaVisual();
+        }
+
+        function importarListaMasiva() {
+            const text = document.getElementById('textarea-masivo').value.trim();
+            if(!text) return;
+
+            const tokens = text.split(/[\s,]+/);
+            let anadidos = 0;
+
+            tokens.forEach(t => {
+                let cleanEmail = t.replace(/[<>"]/g, '').trim();
+                if(cleanEmail.includes('@') && cleanEmail.includes('.') && !listaEmails.includes(cleanEmail)) {
+                    listaEmails.push(cleanEmail);
+                    anadidos++;
+                }
+            });
+
+            document.getElementById('textarea-masivo').value = '';
+            actualizarListaVisual();
+            mostrarModal("IMPORTACIÓN EXITOSA", `Se han añadido ${anadidos} nuevos correos a la cola.`);
+        }
+
+        function eliminarEmail(index) {
+            listaEmails.splice(index, 1);
+            actualizarListaVisual();
+        }
+
+        function limpiarEmails() {
+            listaEmails = [];
+            actualizarListaVisual();
+        }
+
+        function actualizarListaVisual() {
+            const container = document.getElementById('lista-destinatarios-container');
+            document.getElementById('contador-emails').innerText = listaEmails.length;
+
+            if(listaEmails.length === 0) {
+                container.innerHTML = '<div class="text-xs text-gray-500 italic p-2 bg-black/40 text-center">No hay correos agregados todavía.</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            listaEmails.forEach((email, idx) => {
+                let div = document.createElement('div');
+                div.className = 'flex justify-between items-center bg-cyan-neon/5 border border-cyan-neon/10 p-2 rounded text-xs';
+                div.innerHTML = `
+                    <span class="truncate pr-2 text-cyan-200">${email}</span>
+                    <button onclick="eliminarEmail(${idx})" class="text-red-400 hover:text-red-300 font-bold px-1.5 py-0.5">×</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function obtenerCuerpoPersonalizado() {
+            return document.getElementById('input-cuerpo').value;
+        }
+
+        function copiarCarta() {
+            const asunto = document.getElementById('input-asunto').value;
+            const cuerpo = obtenerCuerpoPersonalizado();
+            const textoCompleto = `ASUNTO: ${asunto}\n\n${cuerpo}`;
+
+            if(navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(textoCompleto).then(() => {
+                    mostrarModal("PORTAPAPELES", "La carta ha sido copiada con éxito.");
+                }).catch(() => {
+                    ejecutarCopiaAlternativa(textoCompleto);
+                });
+            } else {
+                ejecutarCopiaAlternativa(textoCompleto);
+            }
+        }
+
+        function ejecutarCopiaAlternativa(texto) {
+            const textarea = document.createElement('textarea');
+            textarea.value = texto;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                mostrarModal("PORTAPAPELES", "Carta copiada correctamente.");
+            } catch (err) {
+                mostrarModal("ERROR", "No se pudo copiar automáticamente.");
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function enviarCorreoMasivoCliente() {
+            // Obtenemos los textos en su estado natural
+            const asuntoTexto = document.getElementById('input-asunto').value;
+            const cuerpoTexto = obtenerCuerpoPersonalizado();
+
+            // Usamos encodeURIComponent de forma estricta para garantizar
+            // que los saltos de línea (\n) y caracteres se pasen a Gmail perfectamente
+            const asuntoCodificado = encodeURIComponent(asuntoTexto);
+            const cuerpoCodificado = encodeURIComponent(cuerpoTexto);
+
+            // Preparamos los destinatarios ocultos si los hay
+            const destinatariosBCC = listaEmails.length > 0 ? encodeURIComponent(listaEmails.join(',')) : '';
+            
+            // Construimos la URL específica para abrir Gmail en la web (view=cm es Compose Message)
+            const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=&su=${asuntoCodificado}&body=${cuerpoCodificado}&bcc=${destinatariosBCC}`;
+
+            // Creamos un botón HTML seguro en el modal para que hagas clic, esto
+            // evita absolutamente que el navegador bloquee la apertura de Gmail
+            let mensajeHTML = `
+                <div class="flex flex-col gap-4 items-center">
+                    <p class="text-xs text-gray-300 leading-relaxed text-left">
+                        Haz clic en el botón inferior. Se abrirá una ventana de <strong>Gmail</strong> con tu carta y tu asunto perfectamente rellenados.
+                    </p>
+                    <a href="${gmailLink}" target="_blank" rel="noopener noreferrer" onclick="cerrarModal()" class="bg-cyan-neon text-black px-6 py-4 rounded-sm font-bold tracking-widest text-sm hover:bg-cyan-neon/80 transition-colors w-full text-center mt-2 flex items-center justify-center gap-2">
+                        <i data-lucide="mail" class="w-5 h-5"></i> ENVIAR MEDIANTE GMAIL
+                    </a>
+                </div>
+            `;
+            
+            mostrarModal("LISTO PARA ABRIR GMAIL", mensajeHTML);
+            lucide.createIcons(); // Recargar iconos del modal
+        }
+    </script>
+</body>
+</html>
