@@ -106,7 +106,6 @@
                 </div>
             </div>
 
-            <!-- Panel de Configuración de Enlace Web -->
             <div class="glass-panel p-6 rounded-sm flex flex-col gap-4">
                 <h3 class="font-sans font-bold text-cyan-neon text-sm tracking-wider flex items-center gap-2 border-b border-cyan-neon/20 pb-3">
                     <i data-lucide="link" class="w-4 h-4"></i> ENLACE A TU APP / WEB
@@ -148,8 +147,11 @@
                     <div class="flex justify-between items-end">
                         <label class="text-xs text-cyan-neon/70">Cuerpo del Mensaje:</label>
                         <div class="flex gap-2">
-                            <button onclick="guardarPlantilla()" class="flex items-center gap-1 bg-cyan-neon/20 border border-cyan-neon/50 text-cyan-neon px-3 py-1 text-[10px] uppercase font-bold hover:bg-cyan-neon/40 transition-all rounded-sm">
-                                <i data-lucide="save" class="w-3 h-3"></i> Guardar Plantilla
+                            <button onclick="exportarJSON()" class="flex items-center gap-1 bg-cyan-neon/20 border border-cyan-neon/50 text-cyan-neon px-3 py-1 text-[10px] uppercase font-bold hover:bg-cyan-neon/40 transition-all rounded-sm">
+                                <i data-lucide="download" class="w-3 h-3"></i> Guardar JSON
+                            </button>
+                            <button onclick="importarJSON()" class="flex items-center gap-1 bg-blue-neon/20 border border-blue-neon/50 text-blue-400 px-3 py-1 text-[10px] uppercase font-bold hover:bg-blue-neon/40 transition-all rounded-sm">
+                                <i data-lucide="upload" class="w-3 h-3"></i> Cargar JSON
                             </button>
                             <button onclick="restaurarPlantilla()" class="flex items-center gap-1 bg-red-500/20 border border-red-500/50 text-red-400 px-3 py-1 text-[10px] uppercase font-bold hover:bg-red-500/40 transition-all rounded-sm">
                                 <i data-lucide="rotate-ccw" class="w-3 h-3"></i> Restaurar Original
@@ -177,7 +179,7 @@
         <div class="glass-panel max-w-md w-full p-6 rounded-sm text-center flex flex-col gap-4">
             <h3 id="modal-titulo" class="font-sans font-bold text-cyan-neon text-base">AVISO DEL SISTEMA</h3>
             <div id="modal-texto" class="text-xs text-gray-300 leading-relaxed"></div>
-            <button onclick="cerrarModal()" class="border border-cyan-neon text-cyan-neon py-2 text-xs font-bold hover:bg-cyan-neon/20 transition-all rounded-sm mt-2">CERRAR</button>
+            <button onclick="cerrarModal()" class="border border-cyan-neon text-cyan-neon py-2 text-xs font-bold hover:bg-cyan-neon/20 transition-all rounded-sm mt-2">CERRAR / CONTINUAR</button>
         </div>
     </div>
 
@@ -186,7 +188,7 @@
 
         let listaEmails = [];
 
-        // Diccionario de Plantillas Multilingüe
+        // Diccionario de Plantillas Multilingüe con textos adaptados y nombre/web
         const PLANTILLAS = {
             es: {
                 asunto: "Propuesta de colaboración: Innovación tecnológica para el automodelismo de ranura (SlotSoftware)",
@@ -300,7 +302,6 @@ SlotSoftware`
             }
         };
 
-        // Al cargar la página, inicializamos la plantilla
         window.onload = function() {
             cargarPlantilla();
         };
@@ -311,32 +312,68 @@ SlotSoftware`
             document.getElementById('input-cuerpo').value = PLANTILLAS[idioma].cuerpo;
             
             const nombreIdioma = document.getElementById('selector-idioma').options[document.getElementById('selector-idioma').selectedIndex].text;
-            mostrarModal("IDIOMA CAMBIADO", `Se ha cargado la plantilla oficial en <b>${nombreIdioma}</b>.<br><br><span class="text-yellow-400">Nota: Si tenías textos personalizados sin guardar, han sido sobrescritos por esta plantilla.</span>`);
+            mostrarModal("IDIOMA CAMBIADO", `Se ha cargado la plantilla oficial en <b>${nombreIdioma}</b>.<br><br><span class="text-yellow-400">Nota: Si tenías textos personalizados sin guardar, han sido sobrescritos.</span>`);
         }
 
-        function guardarPlantilla() {
+        function exportarJSON() {
             const asunto = document.getElementById('input-asunto').value;
             const cuerpo = document.getElementById('input-cuerpo').value;
             const idioma = document.getElementById('selector-idioma').value;
             
-            localStorage.setItem('slot_asunto', asunto);
-            localStorage.setItem('slot_cuerpo', cuerpo);
-            localStorage.setItem('slot_idioma', idioma);
+            const data = {
+                asunto: asunto,
+                cuerpo: cuerpo,
+                idioma: idioma,
+                fecha: new Date().toISOString()
+            };
             
-            mostrarModal("PLANTILLA GUARDADA", "Tu carta y asunto se han guardado en este navegador. Se cargarán automáticamente la próxima vez que abras esta herramienta.");
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 4));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", `plantilla_slot_${idioma}_${new Date().getTime()}.json`);
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+            
+            mostrarModal("PLANTILLA EXPORTADA", "El archivo JSON se ha descargado a tu equipo. Puedes guardar tantos archivos como desees para tener diferentes textos listos.");
+        }
+
+        function importarJSON() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.readAsText(file, "UTF-8");
+                reader.onload = function (evt) {
+                    try {
+                        const json = JSON.parse(evt.target.result);
+                        if (json.asunto !== undefined && json.cuerpo !== undefined) {
+                            document.getElementById('input-asunto').value = json.asunto;
+                            document.getElementById('input-cuerpo').value = json.cuerpo;
+                            if(json.idioma) {
+                                document.getElementById('selector-idioma').value = json.idioma;
+                            }
+                            mostrarModal("PLANTILLA CARGADA", "El texto y el asunto se han importado correctamente desde el archivo JSON.");
+                        } else {
+                            mostrarModal("ERROR DE FORMATO", "El archivo JSON no es válido. Faltan los campos 'asunto' o 'cuerpo'.");
+                        }
+                    } catch (error) {
+                        mostrarModal("ERROR", "No se pudo leer el archivo JSON. Asegúrate de que sea un archivo válido.");
+                    }
+                }
+            }
+            input.click();
         }
 
         function cargarPlantilla() {
-            const guardadoIdioma = localStorage.getItem('slot_idioma');
-            const guardadoAsunto = localStorage.getItem('slot_asunto');
-            const guardadoCuerpo = localStorage.getItem('slot_cuerpo');
-
-            const idiomaFinal = guardadoIdioma ? guardadoIdioma : 'es';
+            const idiomaFinal = 'es';
             document.getElementById('selector-idioma').value = idiomaFinal;
-
-            // Si hay algo guardado, lo cargamos. Si no, cargamos lo predeterminado del idioma seleccionado.
-            document.getElementById('input-asunto').value = guardadoAsunto !== null ? guardadoAsunto : PLANTILLAS[idiomaFinal].asunto;
-            document.getElementById('input-cuerpo').value = guardadoCuerpo !== null ? guardadoCuerpo : PLANTILLAS[idiomaFinal].cuerpo;
+            document.getElementById('input-asunto').value = PLANTILLAS[idiomaFinal].asunto;
+            document.getElementById('input-cuerpo').value = PLANTILLAS[idiomaFinal].cuerpo;
         }
 
         function restaurarPlantilla() {
@@ -344,12 +381,7 @@ SlotSoftware`
             document.getElementById('input-asunto').value = PLANTILLAS[idioma].asunto;
             document.getElementById('input-cuerpo').value = PLANTILLAS[idioma].cuerpo;
             
-            // Borramos lo guardado
-            localStorage.removeItem('slot_asunto');
-            localStorage.removeItem('slot_cuerpo');
-            localStorage.removeItem('slot_idioma');
-            
-            mostrarModal("PLANTILLA RESTAURADA", "Se ha vuelto a la carta original de SlotSoftware para este idioma y se han borrado los datos guardados.");
+            mostrarModal("PLANTILLA RESTAURADA", "Se ha vuelto a la carta original de SlotSoftware para este idioma.");
         }
 
         function mostrarModal(titulo, texto) {
@@ -477,7 +509,7 @@ SlotSoftware`
             const cuerpo = obtenerCuerpoPersonalizado();
             const destinatariosBCC = listaEmails.length > 0 ? listaEmails.join(',') : '';
             
-            // Link Seguro de Gmail Web
+            // Link Seguro de Gmail Web (Encodeamos correctamente los parámetros)
             const baseUrl = "https://mail.google.com/mail/?view=cm&fs=1";
             const toParam = "&to=";
             const suParam = "&su=" + encodeURIComponent(asunto);
@@ -490,14 +522,14 @@ SlotSoftware`
 
             let modalHTML = `
                 <div class="flex flex-col gap-4 items-center">
-                    <p class="text-xs text-gray-300 leading-relaxed text-left">El entorno requiere que elijas cómo abrir tu gestor. El texto y los correos se cargarán automáticamente.</p>
+                    <p class="text-xs text-gray-300 leading-relaxed text-left">Elige cómo abrir tu gestor. El sistema inyectará automáticamente el Asunto y el Mensaje.</p>
                     
                     <a href="${gmailLink}" target="_blank" rel="noopener noreferrer" onclick="cerrarModal()" class="bg-blue-neon text-white px-4 py-3 rounded-sm font-bold tracking-widest text-[11px] hover:bg-blue-500 transition-colors w-full text-center flex items-center justify-center gap-2">
-                        <i data-lucide="chrome" class="w-4 h-4"></i> ABRIR GMAIL EN NAVEGADOR
+                        <i data-lucide="chrome" class="w-4 h-4"></i> ABRIR GMAIL EN EL NAVEGADOR
                     </a>
 
                     <a href="${mailtoLink}" onclick="cerrarModal()" class="bg-cyan-neon text-black px-4 py-3 rounded-sm font-bold tracking-widest text-[11px] hover:bg-cyan-neon/80 transition-colors w-full text-center flex items-center justify-center gap-2">
-                        <i data-lucide="mail" class="w-4 h-4"></i> ABRIR APP CORREO (SISTEMA)
+                        <i data-lucide="mail" class="w-4 h-4"></i> ABRIR APP DE CORREO (SISTEMA)
                     </a>
                 </div>
             `;
