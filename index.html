@@ -239,7 +239,7 @@ SlotSoftware`
             const prompt = `Actúa como un traductor profesional B2B. Traduce el siguiente 'Asunto' y 'Cuerpo' de correo al idioma: ${idiomaNombre}. 
             Debes mantener un tono formal, profesional y persuasivo, ideal para correos comerciales B2B. 
             MUY IMPORTANTE: Mantén intactas variables, nombres propios como "SlotSoftware", "Albert Closa", y enlaces como "https://slotsoftware.github.io/Web/" o etiquetas entre corchetes como [Empresa].
-            Solo devuelve el texto traducido, sin introducciones.
+            Devuelve ÚNICAMENTE un objeto JSON válido con las claves "asunto" y "cuerpo". No añadas texto adicional ni bloques de código markdown.
             
             Asunto original:
             ${asuntoActual}
@@ -250,15 +250,7 @@ SlotSoftware`
             const payload = {
                 contents: [{ parts: [{ text: prompt }] }],
                 generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: "OBJECT",
-                        properties: {
-                            "asunto": { "type": "STRING" },
-                            "cuerpo": { "type": "STRING" }
-                        },
-                        required: ["asunto", "cuerpo"]
-                    }
+                    responseMimeType: "application/json"
                 }
             };
 
@@ -274,14 +266,21 @@ SlotSoftware`
                 
                 const result = await response.json();
                 
-                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts.length > 0) {
-                    const jsonText = result.candidates[0].content.parts[0].text;
-                    const translated = JSON.parse(jsonText);
+                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts.length > 0) {
+                    let jsonText = result.candidates[0].content.parts[0].text;
                     
-                    document.getElementById('input-asunto').value = translated.asunto;
-                    document.getElementById('input-cuerpo').value = translated.cuerpo;
+                    // Limpieza estricta para evitar errores si la IA devuelve formato Markdown
+                    jsonText = jsonText.replace(/```json/gi, '').replace(/```/gi, '').trim();
                     
-                    mostrarModal("TRADUCCIÓN COMPLETADA", `Tu texto ha sido traducido al <b>${idiomaNombre}</b> exitosamente conservando tus modificaciones.`);
+                    try {
+                        const translated = JSON.parse(jsonText);
+                        document.getElementById('input-asunto').value = translated.asunto || asuntoActual;
+                        document.getElementById('input-cuerpo').value = translated.cuerpo || cuerpoActual;
+                        
+                        mostrarModal("TRADUCCIÓN COMPLETADA", `Tu texto ha sido traducido al <b>${idiomaNombre}</b> exitosamente conservando tus modificaciones.`);
+                    } catch (parseError) {
+                        mostrarModal("ERROR DE FORMATO", "La IA devolvió el texto, pero hubo un problema al leer el formato. Inténtalo de nuevo.");
+                    }
                 } else {
                     mostrarModal("ERROR DE TRADUCCIÓN", "No se pudo procesar la traducción. Revisa tu conexión e inténtalo de nuevo.");
                 }
