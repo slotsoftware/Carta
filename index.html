@@ -127,7 +127,7 @@
                     </h2>
                     
                     <div class="flex items-center gap-2">
-                        <label class="text-xs text-cyan-neon/60 hidden sm:block">Idioma:</label>
+                        <label class="text-xs text-cyan-neon/60 hidden sm:block">Traductor IA:</label>
                         <select id="selector-idioma" onchange="cambiarIdiomaPlantilla()" class="bg-black/50 border border-cyan-neon/30 text-cyan-neon text-xs rounded-sm px-2 py-1 outline-none cursor-pointer font-sans font-bold uppercase">
                             <option value="es">🇪🇸 Español</option>
                             <option value="ca">🟨 Català</option>
@@ -188,7 +188,7 @@
 
         let listaEmails = [];
 
-        // Diccionario de Plantillas Multilingüe con textos adaptados y nombre/web
+        // Diccionario de Plantillas base (ahora solo como resguardo de seguridad)
         const PLANTILLAS = {
             es: {
                 asunto: "Propuesta de colaboración: Innovación tecnológica para el automodelismo de ranura (SlotSoftware)",
@@ -211,94 +211,6 @@ Nos encantaría programar una breve reunión para mostrarle el funcionamiento en
 Atentamente,
 Albert Closa
 SlotSoftware`
-            },
-            ca: {
-                asunto: "Proposta de col·laboració: Innovació tecnològica per a l'automodelisme de ranura (SlotSoftware)",
-                cuerpo: `Benvolgut/da [Empresa / Responsable],
-
-Em dirigeixo a vostè en representació de SlotSoftware, desenvolupadors d'un ecosistema digital avançat dissenyat exclusivament per modernitzar i potenciar l'automodelisme de ranura (Slot).
-
-Coneixent la trajectòria del seu establiment en el sector, ens agradaria presentar-li la nostra suite d'aplicacions de cronometratge, telemetria i simulació 3D sense necessitat de costós maquinari addicional (funciona directament mitjançant la càmera i el navegador).
-
-Principals solucions per oferir als seus clients:
-- Krono V.4.0 (Personal i Dual): Fotodetector professional amb IA a 30/60fps i Mode TV en Smart TV via núvol.
-- Tracks Telemetry: Simulador 3D de circuits de fins a 8 carrils amb físiques reals i configuració de motors/pneumàtics.
-- Arquitectura Multijugador P2P en temps real.
-
-El convidem a explorar el nostre entorn interactiu i catàleg visual en el següent enllaç:
-https://slotsoftware.github.io/Web/
-
-Ens encantaria programar una breu reunió per mostrar-li el funcionament en viu. Resto a la seva sencera disposició.
-
-Atentament,
-Albert Closa
-SlotSoftware`
-            },
-            en: {
-                asunto: "Partnership Proposal: Technological Innovation for Slot Car Racing (SlotSoftware)",
-                cuerpo: `Dear [Company / Manager],
-
-I am writing to you on behalf of SlotSoftware, developers of an advanced digital ecosystem designed exclusively to modernize and enhance slot car racing.
-
-Knowing your establishment's track record in the sector, we would like to present our suite of timing, telemetry, and 3D simulation applications that require no expensive additional hardware (works directly via camera and browser).
-
-Main solutions to offer your customers:
-- Krono V.4.0 (Personal & Dual): Professional AI photodetector at 30/60fps and TV Mode on Smart TVs via the cloud.
-- Tracks Telemetry: 3D track simulator up to 8 lanes with real physics and motor/tire configuration.
-- Real-time P2P Multiplayer Architecture.
-
-We invite you to explore our interactive environment and visual catalog at the following link:
-https://slotsoftware.github.io/Web/
-
-We would love to schedule a brief meeting to show you a live demonstration. I remain at your complete disposal.
-
-Sincerely,
-Albert Closa
-SlotSoftware`
-            },
-            fr: {
-                asunto: "Proposition de partenariat : Innovation technologique pour le Slot Racing (SlotSoftware)",
-                cuerpo: `Cher/Chère [Entreprise / Responsable],
-
-Je m'adresse à vous au nom de SlotSoftware, développeurs d'un écosystème numérique avancé conçu exclusivement pour moderniser et améliorer le circuit routier électrique (Slot Racing).
-
-Connaissant le parcours de votre établissement dans le secteur, nous souhaitons vous présenter notre suite d'applications de chronométrage, télémétrie et simulation 3D sans avoir besoin de matériel supplémentaire coûteux (fonctionne directement via la caméra et le navigateur).
-
-Principales solutions à proposer à vos clients :
-- Krono V.4.0 (Personnel et Dual) : Photodétecteur professionnel avec IA à 30/60fps et Mode TV sur Smart TV via le cloud.
-- Tracks Telemetry : Simulateur 3D de circuits jusqu'à 8 voies avec physique réelle et configuration des moteurs/pneus.
-- Architecture Multijoueur P2P en temps réel.
-
-Nous vous invitons à explorer notre environnement interactif et notre catalogue visuel sur le lien suivant :
-https://slotsoftware.github.io/Web/
-
-Nous serions ravis de programmer une brève réunion pour vous montrer le fonctionnement en direct. Je reste à votre entière disposition.
-
-Cordialement,
-Albert Closa
-SlotSoftware`
-            },
-            it: {
-                asunto: "Proposta di collaborazione: Innovazione tecnologica per lo Slot Car Racing (SlotSoftware)",
-                cuerpo: `Gentile [Azienda / Responsabile],
-
-Mi rivolgo a Lei a nome di SlotSoftware, sviluppatori di un ecosistema digitale avanzato progettato esclusivamente per modernizzare e potenziare l'automodellismo a pista elettrica (Slot).
-
-Conoscendo l'esperienza del Suo stabilimento nel settore, vorremmo presentarLe la nostra suite di applicazioni di cronometraggio, telemetria e simulazione 3D senza la necessità di costosi hardware aggiuntivi (funziona direttamente tramite fotocamera e browser).
-
-Principali soluzioni da offrire ai Suoi clienti:
-- Krono V.4.0 (Personale e Dual): Rilevatore ottico professionale con IA a 30/60fps e Modalità TV su Smart TV tramite cloud.
-- Tracks Telemetry: Simulatore 3D di circuiti fino a 8 corsie con fisica reale e configurazione di motori/pneumatici.
-- Architettura Multiplayer P2P in tempo reale.
-
-La invitiamo a esplorare il nostro ambiente interattivo e il catalogo visivo al seguente link:
-https://slotsoftware.github.io/Web/
-
-Saremmo lieti di fissare un breve incontro per mostrarLe il funzionamento dal vivo. Resto a Sua completa disposizione.
-
-Cordiali saluti,
-Albert Closa
-SlotSoftware`
             }
         };
 
@@ -306,13 +218,77 @@ SlotSoftware`
             cargarPlantilla();
         };
 
-        function cambiarIdiomaPlantilla() {
-            const idioma = document.getElementById('selector-idioma').value;
-            document.getElementById('input-asunto').value = PLANTILLAS[idioma].asunto;
-            document.getElementById('input-cuerpo').value = PLANTILLAS[idioma].cuerpo;
+        async function cambiarIdiomaPlantilla() {
+            const selector = document.getElementById('selector-idioma');
+            const idiomaCode = selector.value;
+            const idiomaNombre = selector.options[selector.selectedIndex].text;
             
-            const nombreIdioma = document.getElementById('selector-idioma').options[document.getElementById('selector-idioma').selectedIndex].text;
-            mostrarModal("IDIOMA CAMBIADO", `Se ha cargado la plantilla oficial en <b>${nombreIdioma}</b>.<br><br><span class="text-yellow-400">Nota: Si tenías textos personalizados sin guardar, han sido sobrescritos.</span>`);
+            const asuntoActual = document.getElementById('input-asunto').value;
+            const cuerpoActual = document.getElementById('input-cuerpo').value;
+
+            // Evitamos traducir si está vacío
+            if (!asuntoActual.trim() && !cuerpoActual.trim()) {
+                 mostrarModal("AVISO", "No hay texto para traducir.");
+                 return;
+            }
+
+            // Mostramos modal de espera
+            mostrarModal("TRADUCIENDO CON IA...", `Conectando con el traductor para convertir tu texto al <b>${idiomaNombre}</b>.<br><br><span class="text-cyan-neon animate-pulse">Traduciendo tu contenido, por favor espera...</span>`);
+
+            // Usamos Gemini API para traducir el texto que el usuario ha escrito
+            const prompt = `Actúa como un traductor profesional B2B. Traduce el siguiente 'Asunto' y 'Cuerpo' de correo al idioma: ${idiomaNombre}. 
+            Debes mantener un tono formal, profesional y persuasivo, ideal para correos comerciales B2B. 
+            MUY IMPORTANTE: Mantén intactas variables, nombres propios como "SlotSoftware", "Albert Closa", y enlaces como "https://slotsoftware.github.io/Web/" o etiquetas entre corchetes como [Empresa].
+            Solo devuelve el texto traducido, sin introducciones.
+            
+            Asunto original:
+            ${asuntoActual}
+
+            Cuerpo original:
+            ${cuerpoActual}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            "asunto": { "type": "STRING" },
+                            "cuerpo": { "type": "STRING" }
+                        },
+                        required: ["asunto", "cuerpo"]
+                    }
+                }
+            };
+
+            const apiKey = ""; // API Key gestionada por el visor
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts.length > 0) {
+                    const jsonText = result.candidates[0].content.parts[0].text;
+                    const translated = JSON.parse(jsonText);
+                    
+                    document.getElementById('input-asunto').value = translated.asunto;
+                    document.getElementById('input-cuerpo').value = translated.cuerpo;
+                    
+                    mostrarModal("TRADUCCIÓN COMPLETADA", `Tu texto ha sido traducido al <b>${idiomaNombre}</b> exitosamente conservando tus modificaciones.`);
+                } else {
+                    mostrarModal("ERROR DE TRADUCCIÓN", "No se pudo procesar la traducción. Revisa tu conexión e inténtalo de nuevo.");
+                }
+            } catch (error) {
+                console.error(error);
+                mostrarModal("ERROR DE RED", "Hubo un problema al conectar con el servidor de traducción de IA.");
+            }
         }
 
         function exportarJSON() {
@@ -377,11 +353,12 @@ SlotSoftware`
         }
 
         function restaurarPlantilla() {
-            const idioma = document.getElementById('selector-idioma').value;
-            document.getElementById('input-asunto').value = PLANTILLAS[idioma].asunto;
-            document.getElementById('input-cuerpo').value = PLANTILLAS[idioma].cuerpo;
+            // Siempre restaura la versión en Español por seguridad
+            document.getElementById('selector-idioma').value = 'es';
+            document.getElementById('input-asunto').value = PLANTILLAS['es'].asunto;
+            document.getElementById('input-cuerpo').value = PLANTILLAS['es'].cuerpo;
             
-            mostrarModal("PLANTILLA RESTAURADA", "Se ha vuelto a la carta original de SlotSoftware para este idioma.");
+            mostrarModal("PLANTILLA RESTAURADA", "Se ha vuelto a la carta original de SlotSoftware.");
         }
 
         function mostrarModal(titulo, texto) {
@@ -470,13 +447,9 @@ SlotSoftware`
             });
         }
 
-        function obtenerCuerpoPersonalizado() {
-            return document.getElementById('input-cuerpo').value;
-        }
-
         function copiarCarta() {
             const asunto = document.getElementById('input-asunto').value;
-            const cuerpo = obtenerCuerpoPersonalizado();
+            const cuerpo = document.getElementById('input-cuerpo').value;
             const textoCompleto = `ASUNTO: ${asunto}\n\n${cuerpo}`;
 
             if(navigator.clipboard && navigator.clipboard.writeText) {
@@ -505,20 +478,15 @@ SlotSoftware`
         }
 
         function enviarCorreoMasivoCliente() {
-            const asunto = document.getElementById('input-asunto').value;
-            const cuerpo = obtenerCuerpoPersonalizado();
-            const destinatariosBCC = listaEmails.length > 0 ? listaEmails.join(',') : '';
+            const asunto = encodeURIComponent(document.getElementById('input-asunto').value);
+            const cuerpo = encodeURIComponent(document.getElementById('input-cuerpo').value);
+            const destinatariosBCC = listaEmails.length > 0 ? encodeURIComponent(listaEmails.join(',')) : '';
             
-            // Link Seguro de Gmail Web (Encodeamos correctamente los parámetros)
-            const baseUrl = "https://mail.google.com/mail/?view=cm&fs=1";
-            const toParam = "&to=";
-            const suParam = "&su=" + encodeURIComponent(asunto);
-            const bodyParam = "&body=" + encodeURIComponent(cuerpo);
-            const bccParam = destinatariosBCC ? "&bcc=" + encodeURIComponent(destinatariosBCC) : "";
-            const gmailLink = baseUrl + toParam + suParam + bodyParam + bccParam;
+            // Gmail Web Link Builder
+            const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=&su=${asunto}&body=${cuerpo}&bcc=${destinatariosBCC}`;
 
-            // Link Universal (Aplicación de sistema / Mailto)
-            const mailtoLink = `mailto:?bcc=${encodeURIComponent(destinatariosBCC)}&subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
+            // Local App Link Builder (Mailto)
+            const mailtoLink = `mailto:?bcc=${destinatariosBCC}&subject=${asunto}&body=${cuerpo}`;
 
             let modalHTML = `
                 <div class="flex flex-col gap-4 items-center">
