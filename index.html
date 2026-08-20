@@ -50,6 +50,10 @@
             box-shadow: 0 0 10px rgba(0, 229, 255, 0.25) inset !important;
             outline: none;
         }
+        select option {
+            background-color: #00040c;
+            color: #00e5ff;
+        }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.4); }
         ::-webkit-scrollbar-thumb { background: rgba(0, 229, 255, 0.3); border-radius: 3px; }
@@ -117,17 +121,27 @@
 
         <div class="lg:col-span-7 flex flex-col gap-6">
             
-            <div class="glass-panel p-6 rounded-sm flex flex-col gap-4 flex-grow">
+            <div class="glass-panel p-6 rounded-sm flex flex-col gap-5 flex-grow">
                 <div class="flex justify-between items-center border-b border-cyan-neon/20 pb-3">
                     <h2 class="font-sans font-bold text-cyan-neon text-sm tracking-wider flex items-center gap-2">
-                        <i data-lucide="file-text" class="w-4 h-4"></i> COMPOSICIÓN DE LA CARTA COMERCIAL
+                        <i data-lucide="file-text" class="w-4 h-4"></i> COMPOSICIÓN
                     </h2>
-                    <span class="text-xs text-cyan-neon/60">Plantilla Profesional B2B</span>
+                    
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs text-cyan-neon/60 hidden sm:block">Idioma:</label>
+                        <select id="selector-idioma" onchange="cambiarIdiomaPlantilla()" class="bg-black/50 border border-cyan-neon/30 text-cyan-neon text-xs rounded-sm px-2 py-1 outline-none cursor-pointer font-sans font-bold uppercase">
+                            <option value="es">🇪🇸 Español</option>
+                            <option value="ca">🟨 Català</option>
+                            <option value="en">🇬🇧 English</option>
+                            <option value="fr">🇫🇷 Français</option>
+                            <option value="it">🇮🇹 Italiano</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="flex flex-col gap-2">
                     <label class="text-xs text-cyan-neon/70">Asunto del Correo:</label>
-                    <input type="text" id="input-asunto" value="Propuesta de colaboración: Innovación tecnológica para el automodelismo de ranura (SlotSoftware)" class="w-full p-2.5 text-xs rounded-sm">
+                    <input type="text" id="input-asunto" class="w-full p-2.5 text-xs rounded-sm font-bold">
                 </div>
 
                 <div class="flex flex-col gap-2 flex-grow">
@@ -172,8 +186,11 @@
 
         let listaEmails = [];
 
-        const ASUNTO_POR_DEFECTO = "Propuesta de colaboración: Innovación tecnológica para el automodelismo de ranura (SlotSoftware)";
-        const CUERPO_POR_DEFECTO = `Estimado/a [Empresa / Responsable],
+        // Diccionario de Plantillas Multilingüe
+        const PLANTILLAS = {
+            es: {
+                asunto: "Propuesta de colaboración: Innovación tecnológica para el automodelismo de ranura (SlotSoftware)",
+                cuerpo: `Estimado/a [Empresa / Responsable],
 
 Me dirijo a usted en representación de SlotSoftware, desarrolladores de un ecosistema digital avanzado diseñado exclusivamente para modernizar y potenciar el automodelismo de ranura (Slot).
 
@@ -191,41 +208,148 @@ Nos encantaría programar una breve reunión para mostrarle el funcionamiento en
 
 Atentamente,
 Albert Closa
-SlotSoftware`;
+SlotSoftware`
+            },
+            ca: {
+                asunto: "Proposta de col·laboració: Innovació tecnològica per a l'automodelisme de ranura (SlotSoftware)",
+                cuerpo: `Benvolgut/da [Empresa / Responsable],
+
+Em dirigeixo a vostè en representació de SlotSoftware, desenvolupadors d'un ecosistema digital avançat dissenyat exclusivament per modernitzar i potenciar l'automodelisme de ranura (Slot).
+
+Coneixent la trajectòria del seu establiment en el sector, ens agradaria presentar-li la nostra suite d'aplicacions de cronometratge, telemetria i simulació 3D sense necessitat de costós maquinari addicional (funciona directament mitjançant la càmera i el navegador).
+
+Principals solucions per oferir als seus clients:
+- Krono V.4.0 (Personal i Dual): Fotodetector professional amb IA a 30/60fps i Mode TV en Smart TV via núvol.
+- Tracks Telemetry: Simulador 3D de circuits de fins a 8 carrils amb físiques reals i configuració de motors/pneumàtics.
+- Arquitectura Multijugador P2P en temps real.
+
+El convidem a explorar el nostre entorn interactiu i catàleg visual en el següent enllaç:
+https://slotsoftware.github.io/Web/
+
+Ens encantaria programar una breu reunió per mostrar-li el funcionament en viu. Resto a la seva sencera disposició.
+
+Atentament,
+Albert Closa
+SlotSoftware`
+            },
+            en: {
+                asunto: "Partnership Proposal: Technological Innovation for Slot Car Racing (SlotSoftware)",
+                cuerpo: `Dear [Company / Manager],
+
+I am writing to you on behalf of SlotSoftware, developers of an advanced digital ecosystem designed exclusively to modernize and enhance slot car racing.
+
+Knowing your establishment's track record in the sector, we would like to present our suite of timing, telemetry, and 3D simulation applications that require no expensive additional hardware (works directly via camera and browser).
+
+Main solutions to offer your customers:
+- Krono V.4.0 (Personal & Dual): Professional AI photodetector at 30/60fps and TV Mode on Smart TVs via the cloud.
+- Tracks Telemetry: 3D track simulator up to 8 lanes with real physics and motor/tire configuration.
+- Real-time P2P Multiplayer Architecture.
+
+We invite you to explore our interactive environment and visual catalog at the following link:
+https://slotsoftware.github.io/Web/
+
+We would love to schedule a brief meeting to show you a live demonstration. I remain at your complete disposal.
+
+Sincerely,
+Albert Closa
+SlotSoftware`
+            },
+            fr: {
+                asunto: "Proposition de partenariat : Innovation technologique pour le Slot Racing (SlotSoftware)",
+                cuerpo: `Cher/Chère [Entreprise / Responsable],
+
+Je m'adresse à vous au nom de SlotSoftware, développeurs d'un écosystème numérique avancé conçu exclusivement pour moderniser et améliorer le circuit routier électrique (Slot Racing).
+
+Connaissant le parcours de votre établissement dans le secteur, nous souhaitons vous présenter notre suite d'applications de chronométrage, télémétrie et simulation 3D sans avoir besoin de matériel supplémentaire coûteux (fonctionne directement via la caméra et le navigateur).
+
+Principales solutions à proposer à vos clients :
+- Krono V.4.0 (Personnel et Dual) : Photodétecteur professionnel avec IA à 30/60fps et Mode TV sur Smart TV via le cloud.
+- Tracks Telemetry : Simulateur 3D de circuits jusqu'à 8 voies avec physique réelle et configuration des moteurs/pneus.
+- Architecture Multijoueur P2P en temps réel.
+
+Nous vous invitons à explorer notre environnement interactif et notre catalogue visuel sur le lien suivant :
+https://slotsoftware.github.io/Web/
+
+Nous serions ravis de programmer une brève réunion pour vous montrer le fonctionnement en direct. Je reste à votre entière disposition.
+
+Cordialement,
+Albert Closa
+SlotSoftware`
+            },
+            it: {
+                asunto: "Proposta di collaborazione: Innovazione tecnologica per lo Slot Car Racing (SlotSoftware)",
+                cuerpo: `Gentile [Azienda / Responsabile],
+
+Mi rivolgo a Lei a nome di SlotSoftware, sviluppatori di un ecosistema digitale avanzato progettato esclusivamente per modernizzare e potenziare l'automodellismo a pista elettrica (Slot).
+
+Conoscendo l'esperienza del Suo stabilimento nel settore, vorremmo presentarLe la nostra suite di applicazioni di cronometraggio, telemetria e simulazione 3D senza la necessità di costosi hardware aggiuntivi (funziona direttamente tramite fotocamera e browser).
+
+Principali soluzioni da offrire ai Suoi clienti:
+- Krono V.4.0 (Personale e Dual): Rilevatore ottico professionale con IA a 30/60fps e Modalità TV su Smart TV tramite cloud.
+- Tracks Telemetry: Simulatore 3D di circuiti fino a 8 corsie con fisica reale e configurazione di motori/pneumatici.
+- Architettura Multiplayer P2P in tempo reale.
+
+La invitiamo a esplorare il nostro ambiente interattivo e il catalogo visivo al seguente link:
+https://slotsoftware.github.io/Web/
+
+Saremmo lieti di fissare un breve incontro per mostrarLe il funzionamento dal vivo. Resto a Sua completa disposizione.
+
+Cordiali saluti,
+Albert Closa
+SlotSoftware`
+            }
+        };
 
         // Al cargar la página, inicializamos la plantilla
         window.onload = function() {
             cargarPlantilla();
         };
 
+        function cambiarIdiomaPlantilla() {
+            const idioma = document.getElementById('selector-idioma').value;
+            document.getElementById('input-asunto').value = PLANTILLAS[idioma].asunto;
+            document.getElementById('input-cuerpo').value = PLANTILLAS[idioma].cuerpo;
+            
+            const nombreIdioma = document.getElementById('selector-idioma').options[document.getElementById('selector-idioma').selectedIndex].text;
+            mostrarModal("IDIOMA CAMBIADO", `Se ha cargado la plantilla oficial en <b>${nombreIdioma}</b>.<br><br><span class="text-yellow-400">Nota: Si tenías textos personalizados sin guardar, han sido sobrescritos por esta plantilla.</span>`);
+        }
+
         function guardarPlantilla() {
             const asunto = document.getElementById('input-asunto').value;
             const cuerpo = document.getElementById('input-cuerpo').value;
+            const idioma = document.getElementById('selector-idioma').value;
             
             localStorage.setItem('slot_asunto', asunto);
             localStorage.setItem('slot_cuerpo', cuerpo);
+            localStorage.setItem('slot_idioma', idioma);
             
             mostrarModal("PLANTILLA GUARDADA", "Tu carta y asunto se han guardado en este navegador. Se cargarán automáticamente la próxima vez que abras esta herramienta.");
         }
 
         function cargarPlantilla() {
+            const guardadoIdioma = localStorage.getItem('slot_idioma');
             const guardadoAsunto = localStorage.getItem('slot_asunto');
             const guardadoCuerpo = localStorage.getItem('slot_cuerpo');
 
-            // Si hay algo guardado, lo cargamos. Si no, cargamos lo predeterminado.
-            document.getElementById('input-asunto').value = guardadoAsunto !== null ? guardadoAsunto : ASUNTO_POR_DEFECTO;
-            document.getElementById('input-cuerpo').value = guardadoCuerpo !== null ? guardadoCuerpo : CUERPO_POR_DEFECTO;
+            const idiomaFinal = guardadoIdioma ? guardadoIdioma : 'es';
+            document.getElementById('selector-idioma').value = idiomaFinal;
+
+            // Si hay algo guardado, lo cargamos. Si no, cargamos lo predeterminado del idioma seleccionado.
+            document.getElementById('input-asunto').value = guardadoAsunto !== null ? guardadoAsunto : PLANTILLAS[idiomaFinal].asunto;
+            document.getElementById('input-cuerpo').value = guardadoCuerpo !== null ? guardadoCuerpo : PLANTILLAS[idiomaFinal].cuerpo;
         }
 
         function restaurarPlantilla() {
-            document.getElementById('input-asunto').value = ASUNTO_POR_DEFECTO;
-            document.getElementById('input-cuerpo').value = CUERPO_POR_DEFECTO;
+            const idioma = document.getElementById('selector-idioma').value;
+            document.getElementById('input-asunto').value = PLANTILLAS[idioma].asunto;
+            document.getElementById('input-cuerpo').value = PLANTILLAS[idioma].cuerpo;
             
             // Borramos lo guardado
             localStorage.removeItem('slot_asunto');
             localStorage.removeItem('slot_cuerpo');
+            localStorage.removeItem('slot_idioma');
             
-            mostrarModal("PLANTILLA RESTAURADA", "Se ha vuelto a la carta original de SlotSoftware.");
+            mostrarModal("PLANTILLA RESTAURADA", "Se ha vuelto a la carta original de SlotSoftware para este idioma y se han borrado los datos guardados.");
         }
 
         function mostrarModal(titulo, texto) {
@@ -349,14 +473,11 @@ SlotSoftware`;
         }
 
         function enviarCorreoMasivoCliente() {
-            // Obtenemos los textos tal y como están en los campos
             const asunto = document.getElementById('input-asunto').value;
             const cuerpo = obtenerCuerpoPersonalizado();
-
-            // Preparamos los destinatarios ocultos si los hay
             const destinatariosBCC = listaEmails.length > 0 ? listaEmails.join(',') : '';
             
-            // 1. URL GMAIL
+            // Link Seguro de Gmail Web
             const baseUrl = "https://mail.google.com/mail/?view=cm&fs=1";
             const toParam = "&to=";
             const suParam = "&su=" + encodeURIComponent(asunto);
@@ -364,24 +485,24 @@ SlotSoftware`;
             const bccParam = destinatariosBCC ? "&bcc=" + encodeURIComponent(destinatariosBCC) : "";
             const gmailLink = baseUrl + toParam + suParam + bodyParam + bccParam;
 
-            // 2. URL APP SISTEMA (MAILTO)
+            // Link Universal (Aplicación de sistema / Mailto)
             const mailtoLink = `mailto:?bcc=${encodeURIComponent(destinatariosBCC)}&subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
 
             let modalHTML = `
                 <div class="flex flex-col gap-4 items-center">
-                    <p class="text-xs text-gray-300 leading-relaxed text-left">El entorno seguro requiere que hagas clic en uno de los siguientes botones para abrir tu gestor con todos los datos cargados (Asunto, Carta y Correos Ocultos).</p>
+                    <p class="text-xs text-gray-300 leading-relaxed text-left">El entorno requiere que elijas cómo abrir tu gestor. El texto y los correos se cargarán automáticamente.</p>
                     
-                    <a href="${gmailLink}" target="_blank" rel="noopener noreferrer" onclick="cerrarModal()" class="bg-red-500/10 border border-red-500 text-red-400 px-4 py-3 rounded-sm font-bold tracking-widest text-[10px] hover:bg-red-500/30 hover:text-white transition-all w-full text-center flex items-center justify-center gap-2">
+                    <a href="${gmailLink}" target="_blank" rel="noopener noreferrer" onclick="cerrarModal()" class="bg-blue-neon text-white px-4 py-3 rounded-sm font-bold tracking-widest text-[11px] hover:bg-blue-500 transition-colors w-full text-center flex items-center justify-center gap-2">
                         <i data-lucide="chrome" class="w-4 h-4"></i> ABRIR GMAIL EN NAVEGADOR
                     </a>
 
-                    <a href="${mailtoLink}" onclick="cerrarModal()" class="bg-cyan-neon/20 border border-cyan-neon text-cyan-neon px-4 py-3 rounded-sm font-bold tracking-widest text-[10px] hover:bg-cyan-neon/40 hover:text-white transition-all w-full text-center flex items-center justify-center gap-2">
-                        <i data-lucide="mail" class="w-4 h-4"></i> ABRIR APP DE CORREO (SISTEMA)
+                    <a href="${mailtoLink}" onclick="cerrarModal()" class="bg-cyan-neon text-black px-4 py-3 rounded-sm font-bold tracking-widest text-[11px] hover:bg-cyan-neon/80 transition-colors w-full text-center flex items-center justify-center gap-2">
+                        <i data-lucide="mail" class="w-4 h-4"></i> ABRIR APP CORREO (SISTEMA)
                     </a>
                 </div>
             `;
             
-            mostrarModal("SELECCIONA CÓMO ENVIAR", modalHTML);
+            mostrarModal("ENLACE DE CORREO PREPARADO", modalHTML);
         }
     </script>
 </body>
