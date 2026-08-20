@@ -3,509 +3,352 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SlotSoftware | Gestor de Campañas B2B</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'cyan-neon': '#00e5ff',
-                        'blue-neon': '#0066ff',
-                        'dark-abyss': '#00040c',
-                    },
-                    fontFamily: {
-                        sans: ['Montserrat', 'sans-serif'],
-                        mono: ['Share Tech Mono', 'monospace'],
-                    }
-                }
-            }
-        }
-    </script>
-    
+    <title>Generador de Correos - SlotSoftware</title>
     <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --panel-bg: #2d2d2d;
+            --text-color: #f0f0f0;
+            --accent: #c0c0c0; /* Plata, inspirado en los raíles de las pistas */
+            --accent-blue: #0078D7;
+            --border: #444;
+        }
         body {
-            background-color: #000205;
-            color: #ffffff;
-            font-family: 'Share Tech Mono', monospace;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
         }
-        .glass-panel {
-            background: rgba(0, 10, 25, 0.75);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 229, 255, 0.25);
-            box-shadow: 0 0 30px rgba(0, 229, 255, 0.08) inset, 0 8px 32px rgba(0, 0, 0, 0.8);
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: var(--panel-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            border: 1px solid var(--border);
         }
-        input, textarea, select {
-            background: rgba(0, 229, 255, 0.03) !important;
-            border: 1px solid rgba(0, 229, 255, 0.2) !important;
-            color: #ffffff !important;
-            font-family: 'Share Tech Mono', monospace !important;
+        h1 {
+            text-align: center;
+            color: var(--accent);
+            margin-bottom: 5px;
         }
-        input:focus, textarea:focus, select:focus {
-            border-color: #00e5ff !important;
-            box-shadow: 0 0 10px rgba(0, 229, 255, 0.25) inset !important;
+        h2 {
+            text-align: center;
+            font-size: 14px;
+            color: #aaa;
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #ddd;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid var(--border);
+            background-color: #121212;
+            color: var(--text-color);
+            box-sizing: border-box;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        input:focus, select:focus, textarea:focus {
             outline: none;
+            border-color: var(--accent-blue);
         }
-        select option {
-            background-color: #00040c;
-            color: #00e5ff;
+        textarea {
+            height: 350px;
+            resize: vertical;
+            line-height: 1.5;
         }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.4); }
-        ::-webkit-scrollbar-thumb { background: rgba(0, 229, 255, 0.3); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(0, 229, 255, 0.6); }
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        .btn-send {
+            background-color: var(--accent-blue);
+            color: white;
+        }
+        .btn-send:hover {
+            background-color: #005a9e;
+        }
+        .btn-copy {
+            background-color: #555;
+            color: white;
+        }
+        .btn-copy:hover {
+            background-color: #666;
+        }
+        #notification {
+            display: none;
+            text-align: center;
+            margin-top: 15px;
+            color: #4CAF50;
+            font-weight: bold;
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body>
+    <div class="container">
+        <h1>SlotSoftware</h1>
+        <h2>Gestor Multilingüe de Correos Comerciales</h2>
 
-    <header class="border-b border-cyan-neon/20 bg-dark-abyss/90 sticky top-0 z-50 px-6 py-4 flex justify-between items-center backdrop-blur-md">
-        <div class="flex items-center gap-3">
-            <div class="w-3 h-3 bg-cyan-neon rounded-full animate-ping"></div>
-            <h1 class="text-lg font-bold font-sans tracking-widest text-cyan-neon">SLOTSOFTWARE // <span class="text-white text-xs font-mono">B2B MAILER</span></h1>
+        <div class="form-group">
+            <label for="idioma">Selecciona el Idioma:</label>
+            <select id="idioma" onchange="updateEmail()">
+                <option value="es">Castellano (Español)</option>
+                <option value="ca">Català (Catalán)</option>
+                <option value="en">English (Inglés)</option>
+                <option value="fr">Français (Francés)</option>
+                <option value="it">Italiano (Italiano)</option>
+            </select>
         </div>
-        <div class="flex items-center gap-4 text-xs">
-            <span class="text-cyan-neon/70 hidden sm:inline">ESTADO: <span id="sys-status" class="text-green-400">LISTO PARA ENVÍO</span></span>
-        </div>
-    </header>
 
-    <main class="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="form-group">
+            <label for="destinatario">Correo del Destinatario (Opcional):</label>
+            <input type="email" id="destinatario" placeholder="ejemplo@empresa.com">
+        </div>
+
+        <div class="form-group">
+            <label for="empresa">Nombre de la Empresa o Responsable:</label>
+            <input type="text" id="empresa" placeholder="Empresa / Responsable" oninput="updateEmail()">
+        </div>
+
+        <div class="form-group">
+            <label for="asunto">Asunto del Correo:</label>
+            <input type="text" id="asunto">
+        </div>
+
+        <div class="form-group">
+            <label for="cuerpo">Cuerpo del Mensaje:</label>
+            <textarea id="cuerpo"></textarea>
+        </div>
+
+        <div class="buttons">
+            <button class="btn-copy" onclick="copyToClipboard()">Copiar Mensaje</button>
+            <button class="btn-send" onclick="sendEmail()">Abrir en Gestor de Correo</button>
+        </div>
         
-        <div class="lg:col-span-5 flex flex-col gap-6">
-            
-            <div class="glass-panel p-6 rounded-sm flex flex-col gap-4">
-                <div class="flex justify-between items-center border-b border-cyan-neon/20 pb-3">
-                    <h2 class="font-sans font-bold text-cyan-neon text-sm tracking-wider flex items-center gap-2">
-                        <i data-lucide="users" class="w-4 h-4"></i> DESTINATARIOS (<span id="contador-emails">0</span>)
-                    </h2>
-                    <button onclick="limpiarEmails()" class="text-xs text-red-400 hover:text-red-300 transition-colors">Limpiar</button>
-                </div>
-
-                <div class="flex flex-col gap-2">
-                    <label class="text-xs text-cyan-neon/70">Añadir Correo Individual:</label>
-                    <div class="flex gap-2">
-                        <input type="email" id="input-email" placeholder="tienda@ejemplo.com" class="flex-grow p-2 text-sm rounded-sm">
-                        <button onclick="agregarEmail()" class="bg-cyan-neon/10 border border-cyan-neon text-cyan-neon px-4 py-2 text-xs font-bold hover:bg-cyan-neon/20 transition-all rounded-sm">AÑADIR</button>
-                    </div>
-                </div>
-
-                <div class="flex flex-col gap-2">
-                    <label class="text-xs text-cyan-neon/70">O pegar lista masiva (separados por comas o saltos de línea):</label>
-                    <textarea id="textarea-masivo" rows="3" placeholder="tienda1@slot.com, tienda2@slot.com..." class="p-2 text-xs rounded-sm resize-none"></textarea>
-                    <button onclick="importarListaMasiva()" class="bg-blue-neon/20 border border-blue-neon text-cyan-neon py-2 text-xs font-bold hover:bg-blue-neon/30 transition-all rounded-sm">IMPORTAR LISTA</button>
-                </div>
-
-                <div class="mt-2">
-                    <div class="text-xs text-cyan-neon/60 mb-2">Cola de envío activa:</div>
-                    <div id="lista-destinatarios-container" class="max-h-48 overflow-y-auto flex flex-col gap-1.5 pr-1">
-                        <div class="text-xs text-gray-500 italic p-2 bg-black/40 text-center">No hay correos agregados todavía.</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass-panel p-6 rounded-sm flex flex-col gap-4">
-                <h3 class="font-sans font-bold text-cyan-neon text-sm tracking-wider flex items-center gap-2 border-b border-cyan-neon/20 pb-3">
-                    <i data-lucide="link" class="w-4 h-4"></i> ENLACE A TU APP / WEB
-                </h3>
-                <div>
-                    <label class="text-xs text-cyan-neon/70 mb-1 block">URL de tu web interactiva / presentación:</label>
-                    <input type="text" id="input-url-web" value="https://slotsoftware.github.io/Web/" class="w-full p-2.5 text-xs rounded-sm text-cyan-neon font-bold">
-                </div>
-            </div>
-
-        </div>
-
-        <div class="lg:col-span-7 flex flex-col gap-6">
-            
-            <div class="glass-panel p-6 rounded-sm flex flex-col gap-5 flex-grow">
-                <div class="flex justify-between items-center border-b border-cyan-neon/20 pb-3">
-                    <h2 class="font-sans font-bold text-cyan-neon text-sm tracking-wider flex items-center gap-2">
-                        <i data-lucide="file-text" class="w-4 h-4"></i> COMPOSICIÓN
-                    </h2>
-                    
-                    <div class="flex items-center gap-2">
-                        <label class="text-xs text-cyan-neon/60 hidden sm:block">Traductor IA:</label>
-                        <select id="selector-idioma" onchange="cambiarIdiomaPlantilla()" class="bg-black/50 border border-cyan-neon/30 text-cyan-neon text-xs rounded-sm px-2 py-1 outline-none cursor-pointer font-sans font-bold uppercase">
-                            <option value="es">🇪🇸 Español</option>
-                            <option value="ca">🟨 Català</option>
-                            <option value="en">🇬🇧 English</option>
-                            <option value="fr">🇫🇷 Français</option>
-                            <option value="it">🇮🇹 Italiano</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="flex flex-col gap-2">
-                    <label class="text-xs text-cyan-neon/70">Asunto del Correo:</label>
-                    <input type="text" id="input-asunto" class="w-full p-2.5 text-xs rounded-sm font-bold">
-                </div>
-
-                <div class="flex flex-col gap-2 flex-grow">
-                    <div class="flex justify-between items-end">
-                        <label class="text-xs text-cyan-neon/70">Cuerpo del Mensaje:</label>
-                        <div class="flex gap-2">
-                            <button onclick="exportarJSON()" class="flex items-center gap-1 bg-cyan-neon/20 border border-cyan-neon/50 text-cyan-neon px-3 py-1 text-[10px] uppercase font-bold hover:bg-cyan-neon/40 transition-all rounded-sm">
-                                <i data-lucide="download" class="w-3 h-3"></i> Guardar JSON
-                            </button>
-                            <button onclick="importarJSON()" class="flex items-center gap-1 bg-blue-neon/20 border border-blue-neon/50 text-blue-400 px-3 py-1 text-[10px] uppercase font-bold hover:bg-blue-neon/40 transition-all rounded-sm">
-                                <i data-lucide="upload" class="w-3 h-3"></i> Cargar JSON
-                            </button>
-                            <button onclick="restaurarPlantilla()" class="flex items-center gap-1 bg-red-500/20 border border-red-500/50 text-red-400 px-3 py-1 text-[10px] uppercase font-bold hover:bg-red-500/40 transition-all rounded-sm">
-                                <i data-lucide="rotate-ccw" class="w-3 h-3"></i> Restaurar Original
-                            </button>
-                        </div>
-                    </div>
-                    <textarea id="input-cuerpo" rows="20" class="w-full p-3 text-xs rounded-sm leading-relaxed resize-y font-mono"></textarea>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-cyan-neon/20 mt-1">
-                    <button onclick="copiarCarta()" class="bg-cyan-neon/10 border border-cyan-neon text-cyan-neon py-3 text-xs font-bold hover:bg-cyan-neon/20 transition-all rounded-sm flex items-center justify-center gap-2">
-                        <i data-lucide="copy" class="w-4 h-4"></i> COPIAR CARTA
-                    </button>
-                    <button onclick="enviarCorreoMasivoCliente()" class="bg-cyan-neon text-black py-3 text-xs font-bold hover:bg-cyan-neon/80 transition-all rounded-sm flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(0,229,255,0.4)]">
-                        <i data-lucide="send" class="w-4 h-4"></i> REDACTAR / ENVIAR
-                    </button>
-                </div>
-            </div>
-
-        </div>
-
-    </main>
-
-    <div id="modal-aviso" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
-        <div class="glass-panel max-w-md w-full p-6 rounded-sm text-center flex flex-col gap-4">
-            <h3 id="modal-titulo" class="font-sans font-bold text-cyan-neon text-base">AVISO DEL SISTEMA</h3>
-            <div id="modal-texto" class="text-xs text-gray-300 leading-relaxed"></div>
-            <button onclick="cerrarModal()" class="border border-cyan-neon text-cyan-neon py-2 text-xs font-bold hover:bg-cyan-neon/20 transition-all rounded-sm mt-2">CERRAR / CONTINUAR</button>
-        </div>
+        <div id="notification">¡Texto copiado al portapapeles!</div>
     </div>
 
     <script>
-        lucide.createIcons();
-
-        let listaEmails = [];
-
-        // Diccionario de Plantillas base (ahora solo como resguardo de seguridad)
-        const PLANTILLAS = {
+        const content = {
             es: {
-                asunto: "Propuesta de colaboración: Innovación tecnológica para el automodelismo de ranura (SlotSoftware)",
-                cuerpo: `Estimado/a [Empresa / Responsable],
+                subject: "Innovación en Cronometraje y Simulación 3D para Slot - SlotSoftware",
+                body: `Estimado/a {empresa},
 
-Me dirijo a usted en representación de SlotSoftware, desarrolladores de un ecosistema digital avanzado diseñado exclusivamente para modernizar y potenciar el automodelismo de ranura (Slot).
+Me pongo en contacto con usted desde SlotSoftware para presentarle nuestra suite de aplicaciones diseñadas para modernizar el automodelismo de slot. 
 
-Conociendo la trayectoria de su establecimiento en el sector, nos gustaría presentarle nuestra suite de aplicaciones de cronometraje, telemetría y simulación 3D sin necesidad de costoso hardware adicional (funciona directamente mediante la cámara y el navegador).
+Hemos desarrollado un ecosistema digital de cronometraje, telemetría y simulación 3D que no requiere costoso hardware adicional, ya que funciona directamente a través de la cámara del dispositivo y el navegador web.
 
-Principales soluciones para ofrecer a sus clientes:
-- Krono V.4.0 (Personal y Dual): Fotodetector profesional con IA a 30/60fps y Modo TV en Smart TV vía nube.
-- Tracks Telemetry: Simulador 3D de circuitos de hasta 8 carriles con físicas reales y configuración de motores/neumáticos.
-- Arquitectura Multijugador P2P en tiempo real.
+Nuestras soluciones principales son:
 
-Le invitamos a explorar nuestro entorno interactivo y catálogo visual en el siguiente enlace:
-https://slotsoftware.github.io/Web/
+- KRONO PERSONAL V.4.0: Transforma la cámara en un fotodetector profesional con IA. Ofrece telemetría avanzada, "Modo TV" inmersivo en una segunda pantalla vía nube, análisis de consistencia y ranking global integrado.
 
-Nos encantaría programar una breve reunión para mostrarle el funcionamiento en vivo. Quedo a su entera disposición.
+- KRONODUAL V4.0: El sistema definitivo para carreras de 1 o 2 jugadores. Detecta el paso de los coches a 30fps e incluye panel de telemetría en tiempo real, alertas por voz, comentarista impulsado por IA y exportación de datos.
+
+- TRACKS, TELEMETRY V.2.0: Herramienta integral para diseñar pistas en 2D y visualizarlas en un potente motor 3D (hasta 8 carriles). Permite simular y ajustar parámetros mecánicos (motor, neumáticos, peso, voltaje) y cuenta con una comunidad web para compartir circuitos.
+
+Puede explorar nuestro entorno interactivo y catálogo en el siguiente enlace:
+👉 https://slotsoftware.github.io/Web/
+
+Si les interesa probar nuestras aplicaciones sin compromiso, simplemente respondan a este correo solicitando el registro y les enviaremos las claves de activación para que puedan evaluar su funcionamiento. 
+
+Quedo a su entera disposición para cualquier duda o demostración.
 
 Atentamente,
+
 Albert Closa
+Wsp: 686 16 60 07
+SlotSoftware`
+            },
+            ca: {
+                subject: "Innovació en Cronometratge i Simulació 3D per a Slot - SlotSoftware",
+                body: `Benvolgut/da {empresa},
+
+Em poso en contacte amb vostè des de SlotSoftware per presentar-li la nostra suite d'aplicacions dissenyades per modernitzar l'automodelisme de slot.
+
+Hem desenvolupat un ecosistema digital de cronometratge, telemetria i simulació 3D que no requereix costós maquinari addicional, ja que funciona directament a través de la càmera del dispositiu i el navegador web.
+
+Les nostres solucions principals són:
+
+- KRONO PERSONAL V.4.0: Transforma la càmera en un fotodetector professional amb IA. Ofereix telemetria avançada, "Mode TV" immersiu en una segona pantalla via núvol, anàlisi de consistència i rànquing global integrat.
+
+- KRONODUAL V4.0: El sistema definitiu per a curses d'1 o 2 jugadors. Detecta el pas dels cotxes a 30fps i inclou panell de telemetria en temps real, alertes per veu, comentarista impulsat per IA i exportació de dades.
+
+- TRACKS, TELEMETRY V.2.0: Eina integral per dissenyar pistes en 2D i visualitzar-les en un potent motor 3D (fins a 8 carrils). Permet simular i ajustar paràmetres mecànics (motor, pneumàtics, pes, voltatge) i compta amb una comunitat web per compartir circuits.
+
+Pot explorar el nostre entorn interactiu i catàleg en el següent enllaç:
+👉 https://slotsoftware.github.io/Web/
+
+Si els interessa provar les nostres aplicacions sense compromís, simplement responguin a aquest correu sol·licitant el registre i els enviarem les claus d'activació per avaluar-ne el funcionament.
+
+Resto a la seva sencera disposició per a qualsevol dubte o demostració.
+
+Atentament,
+
+Albert Closa
+Wsp: 686 16 60 07
+SlotSoftware`
+            },
+            en: {
+                subject: "Innovation in Timing and 3D Simulation for Slot Cars - SlotSoftware",
+                body: `Dear {empresa},
+
+I am contacting you on behalf of SlotSoftware to present our suite of applications designed to modernize slot car racing.
+
+We have developed a digital ecosystem for timing, telemetry, and 3D simulation that requires no expensive additional hardware, as it works directly through the device's camera and web browser.
+
+Our main solutions are:
+
+- KRONO PERSONAL V.4.0: Transforms the camera into a professional AI photodetector. It offers advanced telemetry, an immersive "TV Mode" on a second screen via the cloud, consistency analysis, and an integrated global ranking.
+
+- KRONODUAL V4.0: The definitive system for 1 or 2 player races. It detects cars passing at 30fps and includes a real-time telemetry panel, voice alerts, an AI-powered commentator, and data export.
+
+- TRACKS, TELEMETRY V.2.0: A comprehensive tool to design 2D tracks and visualize them in a powerful 3D engine (up to 8 lanes). It allows simulating and adjusting mechanical parameters (motor, tires, weight, voltage) and features a web community to share circuits.
+
+You can explore our interactive environment and catalog at the following link:
+👉 https://slotsoftware.github.io/Web/
+
+If you are interested in trying our applications without commitment, simply reply to this email requesting registration and we will send you the activation keys so you can evaluate their performance.
+
+I remain at your full disposal for any questions or a demonstration.
+
+Sincerely,
+
+Albert Closa
+Wsp: +34 686 16 60 07
+SlotSoftware`
+            },
+            fr: {
+                subject: "Innovation en Chronométrage et Simulation 3D pour Slot - SlotSoftware",
+                body: `Cher/Chère {empresa},
+
+Je vous contacte de la part de SlotSoftware pour vous présenter notre suite d'applications conçues pour moderniser le modélisme de slot.
+
+Nous avons développé un écosystème numérique de chronométrage, télémétrie et simulation 3D qui ne nécessite aucun matériel supplémentaire coûteux, car il fonctionne directement via la caméra de l'appareil et le navigateur web.
+
+Nos principales solutions sont :
+
+- KRONO PERSONAL V.4.0 : Transforme la caméra en un photodétecteur professionnel avec IA. Il offre une télémétrie avancée, un "Mode TV" immersif sur un deuxième écran via le cloud, une analyse de cohérence et un classement global intégré.
+
+- KRONODUAL V4.0 : Le système définitif pour les courses à 1 ou 2 joueurs. Il détecte le passage des voitures à 30fps et comprend un panneau de télémétrie en temps réel, des alertes vocales, un commentateur propulsé par l'IA et l'exportation de données.
+
+- TRACKS, TELEMETRY V.2.0 : Outil complet pour concevoir des pistes en 2D et les visualiser dans un puissant moteur 3D (jusqu'à 8 voies). Il permet de simuler et d'ajuster des paramètres mécaniques (moteur, pneus, poids, tension) et dispose d'une communauté web pour partager des circuits.
+
+Vous pouvez explorer notre environnement interactif et notre catalogue sur le lien suivant :
+👉 https://slotsoftware.github.io/Web/
+
+Si vous êtes intéressé à essayer nos applications sans engagement, répondez simplement à cet e-mail en demandant l'inscription et nous vous enverrons les clés d'activation pour évaluer leur fonctionnement.
+
+Je reste à votre entière disposition pour toute question ou démonstration.
+
+Cordialement,
+
+Albert Closa
+Wsp: +34 686 16 60 07
+SlotSoftware`
+            },
+            it: {
+                subject: "Innovazione nel Cronometraggio e Simulazione 3D per Slot - SlotSoftware",
+                body: `Gentile {empresa},
+
+La contatto da SlotSoftware per presentarle la nostra suite di applicazioni progettate per modernizzare il modellismo di slot.
+
+Abbiamo sviluppato un ecosistema digitale di cronometraggio, telemetria e simulazione 3D che non richiede costosi hardware aggiuntivi, poiché funziona direttamente tramite la fotocamera del dispositivo e il browser web.
+
+Le nostre soluzioni principali sono:
+
+- KRONO PERSONAL V.4.0: Trasforma la fotocamera in un fotorilevatore professionale con IA. Offre telemetria avanzata, "Modalità TV" immersiva su un secondo schermo tramite cloud, analisi di consistenza e una classifica globale integrata.
+
+- KRONODUAL V4.0: Il sistema definitivo per gare a 1 o 2 giocatori. Rileva il passaggio delle auto a 30fps e include un pannello di telemetria in tempo reale, avvisi vocali, un telecronista basato su IA e l'esportazione dei dati.
+
+- TRACKS, TELEMETRY V.2.0: Strumento completo per progettare piste in 2D e visualizzarle in un potente motore 3D (fino a 8 corsie). Permette di simulare e regolare parametri meccanici (motore, pneumatici, peso, voltaggio) e dispone di una comunità web per condividere circuiti.
+
+Può esplorare il nostro ambiente interattivo e catalogo al seguente link:
+👉 https://slotsoftware.github.io/Web/
+
+Se siete interessati a provare le nostre applicazioni senza impegno, rispondete semplicemente a questa email richiedendo la registrazione e vi invieremo le chiavi di attivazione per valutarne il funzionamento.
+
+Resto a sua completa disposizione per qualsiasi domanda o dimostrazione.
+
+Cordiali saluti,
+
+Albert Closa
+Wsp: +34 686 16 60 07
 SlotSoftware`
             }
         };
 
-        window.onload = function() {
-            cargarPlantilla();
-        };
-
-        async function cambiarIdiomaPlantilla() {
-            const selector = document.getElementById('selector-idioma');
-            const idiomaCode = selector.value;
-            const idiomaNombre = selector.options[selector.selectedIndex].text;
-            
-            // Get the CURRENT text from the input fields, not the template
-            const asuntoActual = document.getElementById('input-asunto').value;
-            const cuerpoActual = document.getElementById('input-cuerpo').value;
-
-            // Evitamos traducir si está vacío
-            if (!asuntoActual.trim() && !cuerpoActual.trim()) {
-                 mostrarModal("AVISO", "No hay texto para traducir.");
-                 // Revert select back to previous if empty to avoid confusion
-                 selector.value = 'es'; 
-                 return;
+        function updateEmail() {
+            const idioma = document.getElementById('idioma').value;
+            let empresa = document.getElementById('empresa').value.trim();
+            if (!empresa) {
+                empresa = "[Empresa / Responsable]";
             }
 
-            // Mostramos modal de espera
-            mostrarModal("TRADUCIENDO CON IA...", `Conectando con el traductor para convertir tu texto al <b>${idiomaNombre}</b>.<br><br><span class="text-cyan-neon animate-pulse">Traduciendo tu contenido, por favor espera...</span>`);
-
-            // Usamos Gemini API para traducir el texto que el usuario ha escrito
-            const prompt = `Actúa como un traductor profesional B2B. Traduce el siguiente 'Asunto' y 'Cuerpo' de correo al idioma: ${idiomaNombre}. 
-            Debes mantener un tono formal, profesional y persuasivo, ideal para correos comerciales B2B. 
-            MUY IMPORTANTE: Mantén intactas variables, nombres propios como "SlotSoftware", "Albert Closa", y enlaces como "https://slotsoftware.github.io/Web/" o etiquetas entre corchetes como [Empresa].
-            Devuelve ÚNICAMENTE un objeto JSON válido con las claves "asunto" y "cuerpo". No añadas texto adicional ni bloques de código markdown.
+            const data = content[idioma];
             
-            Asunto original:
-            ${asuntoActual}
-
-            Cuerpo original:
-            ${cuerpoActual}`;
-
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: {
-                    responseMimeType: "application/json"
-                }
-            };
-
-            const apiKey = ""; // API Key gestionada por el visor
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
-
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
-                const result = await response.json();
-                
-                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts.length > 0) {
-                    let jsonText = result.candidates[0].content.parts[0].text;
-                    
-                    // Limpieza estricta para evitar errores si la IA devuelve formato Markdown
-                    jsonText = jsonText.replace(/```json/gi, '').replace(/```/gi, '').trim();
-                    
-                    try {
-                        const translated = JSON.parse(jsonText);
-                        document.getElementById('input-asunto').value = translated.asunto || asuntoActual;
-                        document.getElementById('input-cuerpo').value = translated.cuerpo || cuerpoActual;
-                        
-                        mostrarModal("TRADUCCIÓN COMPLETADA", `Tu texto ha sido traducido al <b>${idiomaNombre}</b> exitosamente conservando tus modificaciones.`);
-                    } catch (parseError) {
-                        mostrarModal("ERROR DE FORMATO", "La IA devolvió el texto, pero hubo un problema al leer el formato. Inténtalo de nuevo.");
-                    }
-                } else {
-                    mostrarModal("ERROR DE TRADUCCIÓN", "No se pudo procesar la traducción. Revisa tu conexión e inténtalo de nuevo.");
-                }
-            } catch (error) {
-                console.error(error);
-                mostrarModal("ERROR DE RED", "Hubo un problema al conectar con el servidor de traducción de IA.");
-            }
-        }
-
-        function exportarJSON() {
-            const asunto = document.getElementById('input-asunto').value;
-            const cuerpo = document.getElementById('input-cuerpo').value;
-            const idioma = document.getElementById('selector-idioma').value;
+            document.getElementById('asunto').value = data.subject;
             
-            const data = {
-                asunto: asunto,
-                cuerpo: cuerpo,
-                idioma: idioma,
-                fecha: new Date().toISOString()
-            };
-            
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 4));
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", `plantilla_slot_${idioma}_${new Date().getTime()}.json`);
-            document.body.appendChild(downloadAnchorNode);
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
-            
-            mostrarModal("PLANTILLA EXPORTADA", "El archivo JSON se ha descargado a tu equipo. Puedes guardar tantos archivos como desees para tener diferentes textos listos.");
+            let finalBody = data.body.replace(/{empresa}/g, empresa);
+            document.getElementById('cuerpo').value = finalBody;
         }
 
-        function importarJSON() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            input.onchange = e => {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                const reader = new FileReader();
-                reader.readAsText(file, "UTF-8");
-                reader.onload = function (evt) {
-                    try {
-                        const json = JSON.parse(evt.target.result);
-                        if (json.asunto !== undefined && json.cuerpo !== undefined) {
-                            document.getElementById('input-asunto').value = json.asunto;
-                            document.getElementById('input-cuerpo').value = json.cuerpo;
-                            if(json.idioma) {
-                                document.getElementById('selector-idioma').value = json.idioma;
-                            }
-                            mostrarModal("PLANTILLA CARGADA", "El texto y el asunto se han importado correctamente desde el archivo JSON.");
-                        } else {
-                            mostrarModal("ERROR DE FORMATO", "El archivo JSON no es válido. Faltan los campos 'asunto' o 'cuerpo'.");
-                        }
-                    } catch (error) {
-                        mostrarModal("ERROR", "No se pudo leer el archivo JSON. Asegúrate de que sea un archivo válido.");
-                    }
-                }
-            }
-            input.click();
-        }
-
-        function cargarPlantilla() {
-            const idiomaFinal = 'es';
-            document.getElementById('selector-idioma').value = idiomaFinal;
-            document.getElementById('input-asunto').value = PLANTILLAS[idiomaFinal].asunto;
-            document.getElementById('input-cuerpo').value = PLANTILLAS[idiomaFinal].cuerpo;
-        }
-
-        function restaurarPlantilla() {
-            // Siempre restaura la versión en Español por seguridad
-            document.getElementById('selector-idioma').value = 'es';
-            document.getElementById('input-asunto').value = PLANTILLAS['es'].asunto;
-            document.getElementById('input-cuerpo').value = PLANTILLAS['es'].cuerpo;
-            
-            mostrarModal("PLANTILLA RESTAURADA", "Se ha vuelto a la carta original de SlotSoftware.");
-        }
-
-        function mostrarModal(titulo, texto) {
-            document.getElementById('modal-titulo').innerText = titulo;
-            document.getElementById('modal-texto').innerHTML = texto;
-            const modal = document.getElementById('modal-aviso');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            lucide.createIcons();
-        }
-
-        function cerrarModal() {
-            const modal = document.getElementById('modal-aviso');
-            modal.classList.remove('flex');
-            modal.classList.add('hidden');
-        }
-
-        function agregarEmail() {
-            const input = document.getElementById('input-email');
-            const email = input.value.trim();
-            if(!email) return;
-            
-            if(!email.includes('@') || !email.includes('.')) {
-                mostrarModal("ERROR DE FORMATO", "El correo introducido no parece válido.");
-                return;
-            }
-
-            if(listaEmails.includes(email)) {
-                mostrarModal("AVISO", "Este correo ya se encuentra en la lista de envío.");
-                return;
-            }
-
-            listaEmails.push(email);
-            input.value = '';
-            actualizarListaVisual();
-        }
-
-        function importarListaMasiva() {
-            const text = document.getElementById('textarea-masivo').value.trim();
-            if(!text) return;
-
-            const tokens = text.split(/[\s,]+/);
-            let anadidos = 0;
-
-            tokens.forEach(t => {
-                let cleanEmail = t.replace(/[<>"]/g, '').trim();
-                if(cleanEmail.includes('@') && cleanEmail.includes('.') && !listaEmails.includes(cleanEmail)) {
-                    listaEmails.push(cleanEmail);
-                    anadidos++;
-                }
-            });
-
-            document.getElementById('textarea-masivo').value = '';
-            actualizarListaVisual();
-            mostrarModal("IMPORTACIÓN EXITOSA", `Se han añadido ${anadidos} nuevos correos a la cola.`);
-        }
-
-        function eliminarEmail(index) {
-            listaEmails.splice(index, 1);
-            actualizarListaVisual();
-        }
-
-        function limpiarEmails() {
-            listaEmails = [];
-            actualizarListaVisual();
-        }
-
-        function actualizarListaVisual() {
-            const container = document.getElementById('lista-destinatarios-container');
-            document.getElementById('contador-emails').innerText = listaEmails.length;
-
-            if(listaEmails.length === 0) {
-                container.innerHTML = '<div class="text-xs text-gray-500 italic p-2 bg-black/40 text-center">No hay correos agregados todavía.</div>';
-                return;
-            }
-
-            container.innerHTML = '';
-            listaEmails.forEach((email, idx) => {
-                let div = document.createElement('div');
-                div.className = 'flex justify-between items-center bg-cyan-neon/5 border border-cyan-neon/10 p-2 rounded text-xs';
-                div.innerHTML = `
-                    <span class="truncate pr-2 text-cyan-200">${email}</span>
-                    <button onclick="eliminarEmail(${idx})" class="text-red-400 hover:text-red-300 font-bold px-1.5 py-0.5">×</button>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function copiarCarta() {
-            const asunto = document.getElementById('input-asunto').value;
-            const cuerpo = document.getElementById('input-cuerpo').value;
-            const textoCompleto = `ASUNTO: ${asunto}\n\n${cuerpo}`;
-
-            if(navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(textoCompleto).then(() => {
-                    mostrarModal("PORTAPAPELES", "La carta ha sido copiada con éxito.");
-                }).catch(() => {
-                    ejecutarCopiaAlternativa(textoCompleto);
-                });
-            } else {
-                ejecutarCopiaAlternativa(textoCompleto);
-            }
-        }
-
-        function ejecutarCopiaAlternativa(texto) {
-            const textarea = document.createElement('textarea');
-            textarea.value = texto;
-            document.body.appendChild(textarea);
-            textarea.select();
+        function copyToClipboard() {
+            const bodyText = document.getElementById('cuerpo').value;
+            // Use execCommand as a fallback for iframe environments where navigator.clipboard might be restricted
+            const textArea = document.createElement("textarea");
+            textArea.value = bodyText;
+            document.body.appendChild(textArea);
+            textArea.select();
             try {
                 document.execCommand('copy');
-                mostrarModal("PORTAPAPELES", "Carta copiada correctamente.");
+                const notif = document.getElementById('notification');
+                notif.style.display = 'block';
+                setTimeout(() => { notif.style.display = 'none'; }, 3000);
             } catch (err) {
-                mostrarModal("ERROR", "No se pudo copiar automáticamente.");
+                console.error('Failed to copy', err);
             }
-            document.body.removeChild(textarea);
+            document.body.removeChild(textArea);
         }
 
-        function enviarCorreoMasivoCliente() {
-            const asunto = encodeURIComponent(document.getElementById('input-asunto').value);
-            const cuerpo = encodeURIComponent(document.getElementById('input-cuerpo').value);
-            const destinatariosBCC = listaEmails.length > 0 ? encodeURIComponent(listaEmails.join(',')) : '';
+        function sendEmail() {
+            const destinatario = document.getElementById('destinatario').value;
+            const asunto = encodeURIComponent(document.getElementById('asunto').value);
+            const cuerpo = encodeURIComponent(document.getElementById('cuerpo').value);
             
-            // Gmail Web Link Builder
-            const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=&su=${asunto}&body=${cuerpo}&bcc=${destinatariosBCC}`;
-
-            // Local App Link Builder (Mailto)
-            const mailtoLink = `mailto:?bcc=${destinatariosBCC}&subject=${asunto}&body=${cuerpo}`;
-
-            let modalHTML = `
-                <div class="flex flex-col gap-4 items-center">
-                    <p class="text-xs text-gray-300 leading-relaxed text-left">Elige cómo abrir tu gestor. El sistema inyectará automáticamente el Asunto y el Mensaje.</p>
-                    
-                    <a href="${gmailLink}" target="_blank" rel="noopener noreferrer" onclick="cerrarModal()" class="bg-blue-neon text-white px-4 py-3 rounded-sm font-bold tracking-widest text-[11px] hover:bg-blue-500 transition-colors w-full text-center flex items-center justify-center gap-2">
-                        <i data-lucide="chrome" class="w-4 h-4"></i> ABRIR GMAIL EN EL NAVEGADOR
-                    </a>
-
-                    <a href="${mailtoLink}" onclick="cerrarModal()" class="bg-cyan-neon text-black px-4 py-3 rounded-sm font-bold tracking-widest text-[11px] hover:bg-cyan-neon/80 transition-colors w-full text-center flex items-center justify-center gap-2">
-                        <i data-lucide="mail" class="w-4 h-4"></i> ABRIR APP DE CORREO (SISTEMA)
-                    </a>
-                </div>
-            `;
-            
-            mostrarModal("ENLACE DE CORREO PREPARADO", modalHTML);
+            window.location.href = `mailto:${destinatario}?subject=${asunto}&body=${cuerpo}`;
         }
+
+        // Initialize on load
+        window.onload = updateEmail;
     </script>
 </body>
 </html>
