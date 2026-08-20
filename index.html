@@ -223,12 +223,15 @@ SlotSoftware`
             const idiomaCode = selector.value;
             const idiomaNombre = selector.options[selector.selectedIndex].text;
             
+            // Get the CURRENT text from the input fields, not the template
             const asuntoActual = document.getElementById('input-asunto').value;
             const cuerpoActual = document.getElementById('input-cuerpo').value;
 
             // Evitamos traducir si está vacío
             if (!asuntoActual.trim() && !cuerpoActual.trim()) {
                  mostrarModal("AVISO", "No hay texto para traducir.");
+                 // Revert select back to previous if empty to avoid confusion
+                 selector.value = 'es'; 
                  return;
             }
 
