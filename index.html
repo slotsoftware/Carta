@@ -33,17 +33,17 @@
     <div class="max-w-3xl w-full bg-[#2d2d2d] p-6 sm:p-8 rounded-xl shadow-2xl border border-gray-700">
         <header class="mb-8 text-center">
             <h1 class="text-3xl font-bold text-gray-300 mb-2">SlotSoftware</h1>
-            <h2 class="text-sm font-medium text-gray-400">Gestor MultilingÃ¼e de Correos Comerciales</h2>
+            <h2 class="text-sm font-medium text-gray-400">Gestor Multiling&uuml;e de Correos Comerciales</h2>
         </header>
 
         <div class="space-y-5">
             <div>
                 <label for="idioma" class="block text-sm font-semibold text-gray-300 mb-2">Selecciona el Idioma:</label>
                 <select id="idioma" onchange="updateEmail()" class="w-full p-3 rounded-lg border border-gray-600 bg-[#121212] text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                    <option value="es">Castellano (EspaÃ±ol)</option>
-                    <option value="ca">CatalÃ  (CatalÃ¡n)</option>
-                    <option value="en">English (InglÃ©s)</option>
-                    <option value="fr">FranÃ§ais (FrancÃ©s)</option>
+                    <option value="es">Castellano (Espa&ntilde;ol)</option>
+                    <option value="ca">Catal&agrave; (Catal&aacute;n)</option>
+                    <option value="en">English (Ingl&eacute;s)</option>
+                    <option value="fr">Fran&ccedil;ais (Franc&eacute;s)</option>
                     <option value="it">Italiano (Italiano)</option>
                 </select>
             </div>
@@ -85,36 +85,38 @@
         </div>
         
         <div id="notification" class="hidden text-center mt-4 text-green-400 font-semibold bg-green-900/30 py-2 rounded-lg border border-green-800/50">
-            Â¡Texto copiado al portapapeles!
+            &iexcl;Texto copiado al portapapeles!
         </div>
     </div>
 
     <script>
+        // Todo el texto está escrito usando códigos Unicode (\x...) para garantizar 
+        // que los acentos NUNCA se rompan, sin importar la configuración del servidor.
         const content = {
             es: {
-                subject: "InnovaciÃ³n en Cronometraje y SimulaciÃ³n 3D para Slot - SlotSoftware",
+                subject: "Innovaci\xF3n en Cronometraje y Simulaci\xF3n 3D para Slot - SlotSoftware",
                 body: `Estimado/a {empresa},
 
-Me pongo en contacto con usted desde SlotSoftware para presentarle nuestra suite de aplicaciones diseÃ±adas para modernizar el automodelismo de slot. 
+Me pongo en contacto con usted desde SlotSoftware para presentarle nuestra suite de aplicaciones dise\xF1adas para modernizar el automodelismo de slot. 
 
-Hemos desarrollado un ecosistema digital de cronometraje, telemetrÃ­a y simulaciÃ³n 3D que no requiere costoso hardware adicional, ya que funciona directamente a travÃ©s de la cÃ¡mara del dispositivo y el navegador web.
+Hemos desarrollado un ecosistema digital de cronometraje, telemetr\xEDa y simulaci\xF3n 3D que no requiere costoso hardware adicional, ya que funciona directamente a trav\xE9s de la c\xE1mara del dispositivo y el navegador web.
 
 Nuestras soluciones principales son:
 
-- KRONO PERSONAL V.4.0: Transforma la cÃ¡mara en un fotodetector profesional con IA. Ofrece telemetrÃ­a avanzada, "Modo TV" inmersivo en una segunda pantalla vÃ­a nube, anÃ¡lisis de consistencia y ranking global integrado.
+- KRONO PERSONAL V.4.0: Transforma la c\xE1mara en un fotodetector profesional con IA. Ofrece telemetr\xEDa avanzada, "Modo TV" inmersivo en una segunda pantalla v\xEDa nube, an\xE1lisis de consistencia y ranking global integrado.
 
-- KRONODUAL V4.0: El sistema definitivo para carreras de 1 o 2 jugadores. Detecta el paso de los coches a 30fps e incluye panel de telemetrÃ­a en tiempo real, alertas por voz, comentarista impulsado por IA y exportaciÃ³n de datos.
+- KRONODUAL V4.0: El sistema definitivo para carreras de 1 o 2 jugadores. Detecta el paso de los coches a 30fps e incluye panel de telemetr\xEDa en tiempo real, alertas por voz, comentarista impulsado por IA y exportaci\xF3n de datos.
 
-- TRACKS, TELEMETRY V.2.0: Herramienta integral para diseÃ±ar pistas en 2D y visualizarlas en un potente motor 3D (hasta 8 carriles). Permite simular y ajustar parÃ¡metros mecÃ¡nicos (motor, neumÃ¡ticos, peso, voltaje) y cuenta con una comunidad web para compartir circuitos.
+- TRACKS, TELEMETRY V.2.0: Herramienta integral para dise\xF1ar pistas en 2D y visualizarlas en un potente motor 3D (hasta 8 carriles). Permite simular y ajustar par\xE1metros mec\xE1nicos (motor, neum\xE1ticos, peso, voltaje) y cuenta con una comunidad web para compartir circuitos.
 
-- SECTOR TIME V.1.0: Representa la cÃºspide de la ingenierÃ­a de software aplicada al mundo del slot y el modelismo de competiciÃ³n. Esta aplicaciÃ³n no es un simple cronÃ³metro; es una suite completa de telemetrÃ­a basada en visiÃ³n artificial (Computer Vision) que transforma cualquier cÃ¡mara web o dispositivo mÃ³vil en un sensor de precisiÃ³n quirÃºrgica. El sistema utiliza algoritmos de anÃ¡lisis de luminancia en tiempo real para detectar el paso de vehÃ­culos por puntos especÃ­ficos de la pista, eliminando la necesidad de costosos sensores fÃ­sicos, cableado complejo o modificaciones en la infraestructura del circuito.
+- SECTOR TIME V.1.0: Representa la c\xFAspide de la ingenier\xEDa de software aplicada al mundo del slot y el modelismo de competici\xF3n. Esta aplicaci\xF3n no es un simple cron\xF3metro; es una suite completa de telemetr\xEDa basada en visi\xF3n artificial (Computer Vision) que transforma cualquier c\xE1mara web o dispositivo m\xF3vil en un sensor de precisi\xF3n quir\xFArgica. El sistema utiliza algoritmos de an\xE1lisis de luminancia en tiempo real para detectar el paso de veh\xEDculos por puntos espec\xEDficos de la pista, eliminando la necesidad de costosos sensores f\xEDsicos, cableado complejo o modificaciones en la infraestructura del circuito.
 
-Puede explorar nuestro entorno interactivo y catÃ¡logo en el siguiente enlace:
-ðŸ‘‰ https://slotsoftware.github.io/Web/
+Puede explorar nuestro entorno interactivo y cat\xE1logo en el siguiente enlace:
+\uD83D\uDC49 https://slotsoftware.github.io/Web/
 
-Si les interesa probar nuestras aplicaciones sin compromiso, simplemente respondan a este correo solicitando el registro y les enviaremos las claves de activaciÃ³n para que puedan evaluar su funcionamiento. 
+Si les interesa probar nuestras aplicaciones sin compromiso, simplemente respondan a este correo solicitando el registro y les enviaremos las claves de activaci\xF3n para que puedan evaluar su funcionamiento. 
 
-Quedo a su entera disposiciÃ³n para cualquier duda o demostraciÃ³n.
+Quedo a su entera disposici\xF3n para cualquier duda o demostraci\xF3n.
 
 Atentamente,
 
@@ -123,29 +125,29 @@ Wsp: 686 16 60 07
 SlotSoftware`
             },
             ca: {
-                subject: "InnovaciÃ³ en Cronometratge i SimulaciÃ³ 3D per a Slot - SlotSoftware",
+                subject: "Innovaci\xF3 en Cronometratge i Simulaci\xF3 3D per a Slot - SlotSoftware",
                 body: `Benvolgut/da {empresa},
 
-Em poso en contacte amb vostÃ¨ des de SlotSoftware per presentar-li la nostra suite d'aplicacions dissenyades per modernitzar l'automodelisme de slot.
+Em poso en contacte amb vost\xE8 des de SlotSoftware per presentar-li la nostra suite d'aplicacions dissenyades per modernitzar l'automodelisme de slot.
 
-Hem desenvolupat un ecosistema digital de cronometratge, telemetria i simulaciÃ³ 3D que no requereix costÃ³s maquinari addicional, ja que funciona directament a travÃ©s de la cÃ mera del dispositiu i el navegador web.
+Hem desenvolupat un ecosistema digital de cronometratge, telemetria i simulaci\xF3 3D que no requereix cost\xF3s maquinari addicional, ja que funciona directament a trav\xE9s de la c\xE0mera del dispositiu i el navegador web.
 
-Les nostres solucions principals sÃ³n:
+Les nostres solucions principals s\xF3n:
 
-- KRONO PERSONAL V.4.0: Transforma la cÃ mera en un fotodetector professional amb IA. Ofereix telemetria avanÃ§ada, "Mode TV" immersiu en una segona pantalla via nÃºvol, anÃ lisi de consistÃ¨ncia i rÃ nquing global integrat.
+- KRONO PERSONAL V.4.0: Transforma la c\xE0mera en un fotodetector professional amb IA. Ofereix telemetria avan\xE7ada, "Mode TV" immersiu en una segona pantalla via n\xFAvol, an\xE0lisi de consist\xE8ncia i r\xE0nquing global integrat.
 
-- KRONODUAL V4.0: El sistema definitiu per a curses d'1 o 2 jugadors. Detecta el pas dels cotxes a 30fps i inclou panell de telemetria en temps real, alertes per veu, comentarista impulsat per IA i exportaciÃ³ de dades.
+- KRONODUAL V4.0: El sistema definitiu per a curses d'1 o 2 jugadors. Detecta el pas dels cotxes a 30fps i inclou panell de telemetria en temps real, alertes per veu, comentarista impulsat per IA i exportaci\xF3 de dades.
 
-- TRACKS, TELEMETRY V.2.0: Eina integral per dissenyar pistes en 2D i visualitzar-les en un potent motor 3D (fins a 8 carrils). Permet simular i ajustar parÃ metres mecÃ nics (motor, pneumÃ tics, pes, voltatge) i compta amb una comunitat web per compartir circuits.
+- TRACKS, TELEMETRY V.2.0: Eina integral per dissenyar pistes en 2D i visualitzar-les en un potent motor 3D (fins a 8 carrils). Permet simular i ajustar par\xE0metres mec\xE0nics (motor, pneum\xE0tics, pes, voltatge) i compta amb una comunitat web per compartir circuits.
 
-- SECTOR TIME V.1.0: Representa la cÃºspide de l'enginyeria de programari aplicada al mÃ³n de l'slot i el modelisme de competiciÃ³. Aquesta aplicaciÃ³ no Ã©s un simple cronÃ²metre; Ã©s una suite completa de telemetria basada en visiÃ³ artificial (Computer Vision) que transforma qualsevol cÃ mera web o dispositiu mÃ²bil en un sensor de precisiÃ³ quirÃºrgica. El sistema utilitza algorismes d'anÃ lisi de luminÃ ncia en temps real per detectar el pas de vehicles per punts especÃ­fics de la pista, eliminant la necessitat de costosos sensors fÃ­sics, cablejat complex o modificacions en la infraestructura del circuit.
+- SECTOR TIME V.1.0: Representa la c\xFAspide de l'enginyeria de programari aplicada al m\xF3n de l'slot i el modelisme de competici\xF3. Aquesta aplicaci\xF3 no \xE9s un simple cron\xF2metre; \xE9s una suite completa de telemetria basada en visi\xF3 artificial (Computer Vision) que transforma qualsevol c\xE0mera web o dispositiu m\xF2bil en un sensor de precisi\xF3 quir\xFArgica. El sistema utilitza algorismes d'an\xE0lisi de lumin\xE0ncia en temps real per detectar el pas de vehicles per punts espec\xEDfics de la pista, eliminant la necessitat de costosos sensors f\xEDsics, cablejat complex o modificacions en la infraestructura del circuit.
 
-Pot explorar el nostre entorn interactiu i catÃ leg en el segÃ¼ent enllaÃ§:
-ðŸ‘‰ https://slotsoftware.github.io/Web/
+Pot explorar el nostre entorn interactiu i cat\xE0leg en el seg\xFCent enlla\xE7:
+\uD83D\uDC49 https://slotsoftware.github.io/Web/
 
-Si els interessa provar les nostres aplicacions sense compromÃ­s, simplement responguin a aquest correu solÂ·licitant el registre i els enviarem les claus d'activaciÃ³ per avaluar-ne el funcionament.
+Si els interessa provar les nostres aplicacions sense comprom\xEDs, simplement responguin a aquest correu sol\xB7licitant el registre i els enviarem les claus d'activaci\xF3 per avaluar-ne el funcionament.
 
-Resto a la seva sencera disposiciÃ³ per a qualsevol dubte o demostraciÃ³.
+Resto a la seva sencera disposici\xF3 per a qualsevol dubte o demostraci\xF3.
 
 Atentament,
 
@@ -172,7 +174,7 @@ Our main solutions are:
 - SECTOR TIME V.1.0: Represents the pinnacle of software engineering applied to the world of slot cars and competitive modeling. This application is not a simple stopwatch; it is a complete telemetry suite based on Computer Vision that transforms any webcam or mobile device into a sensor of surgical precision. The system uses real-time luminance analysis algorithms to detect vehicles passing through specific points on the track, eliminating the need for expensive physical sensors, complex wiring, or modifications to the track infrastructure.
 
 You can explore our interactive environment and catalog at the following link:
-ðŸ‘‰ https://slotsoftware.github.io/Web/
+\uD83D\uDC49 https://slotsoftware.github.io/Web/
 
 If you are interested in trying our applications without commitment, simply reply to this email requesting registration and we will send you the activation keys so you can evaluate their performance.
 
@@ -185,29 +187,29 @@ Wsp: +34 686 16 60 07
 SlotSoftware`
             },
             fr: {
-                subject: "Innovation en ChronomÃ©trage et Simulation 3D pour Slot - SlotSoftware",
-                body: `Cher/ChÃ¨re {empresa},
+                subject: "Innovation en Chronom\xE9trage et Simulation 3D pour Slot - SlotSoftware",
+                body: `Cher/Ch\xE8re {empresa},
 
-Je vous contacte de la part de SlotSoftware pour vous prÃ©senter notre suite d'applications conÃ§ues pour moderniser le modÃ©lisme de slot.
+Je vous contacte de la part de SlotSoftware pour vous pr\xE9senter notre suite d'applications con\xE7ues pour moderniser le mod\xE9lisme de slot.
 
-Nous avons dÃ©veloppÃ© un Ã©cosystÃ¨me numÃ©rique de chronomÃ©trage, tÃ©lÃ©mÃ©trie et simulation 3D qui ne nÃ©cessite aucun matÃ©riel supplÃ©mentaire coÃ»teux, car il fonctionne directement via la camÃ©ra de l'appareil et le navigateur web.
+Nous avons d\xE9velopp\xE9 un \xE9cosyst\xE8me num\xE9rique de chronom\xE9trage, t\xE9l\xE9m\xE9trie et simulation 3D qui ne n\xE9cessite aucun mat\xE9riel suppl\xE9mentaire co\xFBteux, car il fonctionne directement via la cam\xE9ra de l'appareil et le navigateur web.
 
 Nos principales solutions sont :
 
-- KRONO PERSONAL V.4.0 : Transforme la camÃ©ra en un photodÃ©tecteur professionnel avec IA. Il offre une tÃ©lÃ©mÃ©trie avancÃ©e, un "Mode TV" immersif sur un deuxiÃ¨me Ã©cran via le cloud, une analyse de cohÃ©rence et un classement global intÃ©grÃ©.
+- KRONO PERSONAL V.4.0 : Transforme la cam\xE9ra en un photod\xE9tecteur professionnel avec IA. Il offre une t\xE9l\xE9m\xE9trie avanc\xE9e, un "Mode TV" immersif sur un deuxi\xE8me \xE9cran via le cloud, une analyse de coh\xE9rence et un classement global int\xE9gr\xE9.
 
-- KRONODUAL V4.0 : Le systÃ¨me dÃ©finitif pour les courses Ã  1 ou 2 joueurs. Il dÃ©tecte le passage des voitures Ã  30fps et comprend un panneau de tÃ©lÃ©mÃ©trie en temps rÃ©el, des alertes vocales, un commentateur propulsÃ© par l'IA et l'exportation de donnÃ©es.
+- KRONODUAL V4.0 : Le syst\xE8me d\xE9finitif pour les courses \xE0 1 ou 2 joueurs. Il d\xE9tecte le passage des voitures \xE0 30fps et comprend un panneau de t\xE9l\xE9m\xE9trie en temps r\xE9el, des alertes vocales, un commentateur propuls\xE9 par l'IA et l'exportation de donn\xE9es.
 
-- TRACKS, TELEMETRY V.2.0 : Outil complet pour concevoir des pistes en 2D et les visualiser dans un puissant moteur 3D (jusqu'Ã  8 voies). Il permet de simuler et d'ajuster des paramÃ¨tres mÃ©caniques (moteur, pneus, poids, tension) et dispose d'une communautÃ© web pour partager des circuits.
+- TRACKS, TELEMETRY V.2.0 : Outil complet pour concevoir des pistes en 2D et les visualiser dans un puissant moteur 3D (jusqu'\xE0 8 voies). Il permet de simuler et d'ajuster des param\xE8tres m\xE9caniques (moteur, pneus, poids, tension) et dispose d'une communaut\xE9 web pour partager des circuits.
 
-- SECTOR TIME V.1.0 : ReprÃ©sente le summum de l'ingÃ©nierie logicielle appliquÃ©e au monde du slot et du modÃ©lisme de compÃ©tition. Cette application n'est pas un simple chronomÃ¨tre ; c'est une suite complÃ¨te de tÃ©lÃ©mÃ©trie basÃ©e sur la vision par ordinateur (Computer Vision) qui transforme n'importe quelle webcam ou appareil mobile en un capteur d'une prÃ©cision chirurgicale. Le systÃ¨me utilise des algorithmes d'analyse de luminance en temps rÃ©el pour dÃ©tecter le passage des vÃ©hicules par des points spÃ©cifiques de la piste, Ã©liminant le besoin de capteurs physiques coÃ»teux, de cÃ¢blages complexes ou de modifications de l'infrastructure du circuit.
+- SECTOR TIME V.1.0 : Repr\xE9sente le summum de l'ing\xE9nierie logicielle appliqu\xE9e au monde du slot et du mod\xE9lisme de comp\xE9tition. Cette application n'est pas un simple chronom\xE8tre ; c'est une suite compl\xE8te de t\xE9l\xE9m\xE9trie bas\xE9e sur la vision par ordinateur (Computer Vision) qui transforme n'importe quelle webcam ou appareil mobile en un capteur d'une pr\xE9cision chirurgicale. Le syst\xE8me utilise des algorithmes d'analyse de luminance en temps r\xE9el pour d\xE9tecter le passage des v\xE9hicules par des points sp\xE9cifiques de la piste, \xE9liminant le besoin de capteurs physiques co\xFBteux, de c\xE2blages complexes ou de modifications de l'infrastructure du circuit.
 
 Vous pouvez explorer notre environnement interactif et notre catalogue sur le lien suivant :
-ðŸ‘‰ https://slotsoftware.github.io/Web/
+\uD83D\uDC49 https://slotsoftware.github.io/Web/
 
-Si vous Ãªtes intÃ©ressÃ© Ã  essayer nos applications sans engagement, rÃ©pondez simplement Ã  cet e-mail en demandant l'inscription et nous vous enverrons les clÃ©s d'activation pour Ã©valuer leur fonctionnement.
+Si vous \xEAtes int\xE9ress\xE9 \xE0 essayer nos applications sans engagement, r\xE9pondez simplement \xE0 cet e-mail en demandant l'inscription et nous vous enverrons les cl\xE9s d'activation pour \xE9valuer leur fonctionnement.
 
-Je reste Ã  votre entiÃ¨re disposition pour toute question ou dÃ©monstration.
+Je reste \xE0 votre enti\xE8re disposition pour toute question ou d\xE9monstration.
 
 Cordialement,
 
@@ -221,20 +223,20 @@ SlotSoftware`
 
 La contatto da SlotSoftware per presentarle la nostra suite di applicazioni progettate per modernizzare il modellismo di slot.
 
-Abbiamo sviluppato un ecosistema digitale di cronometraggio, telemetria e simulazione 3D che non richiede costosi hardware aggiuntivi, poichÃ© funziona direttamente tramite la fotocamera del dispositivo e il browser web.
+Abbiamo sviluppato un ecosistema digitale di cronometraggio, telemetria e simulazione 3D che non richiede costosi hardware aggiuntivi, poich\xE9 funziona direttamente tramite la fotocamera del dispositivo e il browser web.
 
 Le nostre soluzioni principali sono:
 
-- KRONO PERSONAL V.4.0: Trasforma la fotocamera in un fotorilevatore professionale con IA. Offre telemetria avanzata, "ModalitÃ  TV" immersiva su un secondo schermo tramite cloud, analisi di consistenza e una classifica globale integrata.
+- KRONO PERSONAL V.4.0: Trasforma la fotocamera in un fotorilevatore professionale con IA. Offre telemetria avanzata, "Modalit\xE0 TV" immersiva su un secondo schermo tramite cloud, analisi di consistenza e una classifica globale integrata.
 
 - KRONODUAL V4.0: Il sistema definitivo per gare a 1 o 2 giocatori. Rileva il passaggio delle auto a 30fps e include un pannello di telemetria in tempo reale, avvisi vocali, un telecronista basato su IA e l'esportazione dei dati.
 
-- TRACKS, TELEMETRY V.2.0: Strumento completo per progettare piste in 2D e visualizzarle in un potente motore 3D (fino a 8 corsie). Permette di simulare e regolare parametri meccanici (motore, pneumatici, peso, voltaggio) e dispone di una comunitÃ  web per condividere circuiti.
+- TRACKS, TELEMETRY V.2.0: Strumento completo per progettare piste in 2D e visualizzarle in un potente motore 3D (fino a 8 corsie). Permette di simulare e regolare parametri meccanici (motore, pneumatici, peso, voltaggio) e dispone di una comunit\xE0 web per condividere circuiti.
 
-- SECTOR TIME V.1.0: Rappresenta l'apice dell'ingegneria del software applicata al mondo delle slot car e del modellismo da competizione. Questa applicazione non Ã¨ un semplice cronometro; Ã¨ una suite completa di telemetria basata sulla visione artificiale (Computer Vision) che trasforma qualsiasi webcam o dispositivo mobile in un sensore di precisione chirurgica. Il sistema utilizza algoritmi di analisi della luminanza in tempo reale per rilevare il passaggio dei veicoli in punti specifici della pista, eliminando la necessitÃ  di costosi sensori fisici, cablaggi complessi o modifiche all'infrastruttura del circuito.
+- SECTOR TIME V.1.0: Rappresenta l'apice dell'ingegneria del software applicata al mondo delle slot car e del modellismo da competizione. Questa applicazione non \xE8 un semplice cronometro; \xE8 una suite completa di telemetria basata sulla visione artificiale (Computer Vision) che trasforma qualsiasi webcam o dispositivo mobile in un sensore di precisione chirurgica. Il sistema utilizza algoritmi di analisi della luminanza in tempo reale per rilevare il passaggio dei veicoli in punti specifici della pista, eliminando la necessit\xE0 di costosi sensori fisici, cablaggi complessi o modifiche all'infrastruttura del circuito.
 
-PuÃ² esplorare il nostro ambiente interattivo e catalogo al seguente link:
-ðŸ‘‰ https://slotsoftware.github.io/Web/
+Pu\xF2 esplorare il nostro ambiente interattivo e catalogo al seguente link:
+\uD83D\uDC49 https://slotsoftware.github.io/Web/
 
 Se siete interessati a provare le nostre applicazioni senza impegno, rispondete semplicemente a questa email richiedendo la registrazione e vi invieremo le chiavi di attivazione per valutarne il funzionamento.
 
@@ -257,6 +259,7 @@ SlotSoftware`
 
             const data = content[idioma];
             document.getElementById('asunto').value = data.subject;
+            
             let finalBody = data.body.replace(/{empresa}/g, empresa);
             document.getElementById('cuerpo').value = finalBody;
         }
@@ -264,7 +267,6 @@ SlotSoftware`
         function copyToClipboard() {
             const bodyText = document.getElementById('cuerpo').value;
             
-            // Prefer modern Clipboard API if available, fallback to execCommand
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(bodyText).then(() => showNotification());
             } else {
