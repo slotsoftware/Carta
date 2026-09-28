@@ -4,212 +4,117 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generador de Correos - SlotSoftware</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-color: #1e1e1e;
-            --panel-bg: #2d2d2d;
-            --text-color: #f0f0f0;
-            --accent: #c0c0c0; /* Plata, inspirado en los raíles de las pistas */
-            --accent-blue: #0078D7;
-            --border: #444;
-        }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            background-color: #1e1e1e;
         }
-        .container {
-            max-width: 800px;
-            width: 100%;
-            background-color: var(--panel-bg);
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            border: 1px solid var(--border);
+        /* Custom scrollbar for textareas */
+        textarea::-webkit-scrollbar {
+            width: 8px;
         }
-        h1 {
-            text-align: center;
-            color: var(--accent);
-            margin-bottom: 5px;
+        textarea::-webkit-scrollbar-track {
+            background: #2d2d2d;
+            border-radius: 4px;
         }
-        h2 {
-            text-align: center;
-            font-size: 14px;
-            color: #aaa;
-            margin-top: 0;
-            margin-bottom: 30px;
+        textarea::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
         }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #ddd;
-        }
-        input, select, textarea {
-            width: 100%;
-            padding: 12px;
-            border-radius: 5px;
-            border: 1px solid var(--border);
-            background-color: #121212;
-            color: var(--text-color);
-            box-sizing: border-box;
-            font-family: inherit;
-            font-size: 14px;
-        }
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--accent-blue);
-        }
-        textarea {
-            height: 350px;
-            resize: vertical;
-            line-height: 1.5;
-        }
-        .buttons {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        button {
-            flex: 1;
-            padding: 15px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s, transform 0.1s;
-        }
-        button:active {
-            transform: scale(0.98);
-        }
-        .btn-send {
-            background-color: var(--accent-blue);
-            color: white;
-        }
-        .btn-send:hover {
-            background-color: #005a9e;
-        }
-        .btn-copy {
-            background-color: #555;
-            color: white;
-        }
-        .btn-copy:hover {
-            background-color: #666;
-        }
-        #notification {
-            display: none;
-            text-align: center;
-            margin-top: 15px;
-            color: #4CAF50;
-            font-weight: bold;
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: #777;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>SlotSoftware</h1>
-        <h2>Gestor Multilingüe de Correos Comerciales</h2>
+<body class="text-gray-200 min-h-screen flex items-center justify-center p-4 sm:p-8">
 
-        <div class="form-group">
-            <label for="idioma">Selecciona el Idioma:</label>
-            <select id="idioma" onchange="updateEmail()">
-                <option value="es">Castellano (Español)</option>
-                <option value="ca">Català (Catalán)</option>
-                <option value="en">English (Inglés)</option>
-                <option value="fr">Français (Francés)</option>
-                <option value="it">Italiano (Italiano)</option>
-            </select>
+    <div class="max-w-3xl w-full bg-[#2d2d2d] p-6 sm:p-8 rounded-xl shadow-2xl border border-gray-700">
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-gray-300 mb-2">SlotSoftware</h1>
+            <h2 class="text-sm font-medium text-gray-400">Gestor MultilingÃ¼e de Correos Comerciales</h2>
+        </header>
+
+        <div class="space-y-5">
+            <div>
+                <label for="idioma" class="block text-sm font-semibold text-gray-300 mb-2">Selecciona el Idioma:</label>
+                <select id="idioma" onchange="updateEmail()" class="w-full p-3 rounded-lg border border-gray-600 bg-[#121212] text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                    <option value="es">Castellano (EspaÃ±ol)</option>
+                    <option value="ca">CatalÃ  (CatalÃ¡n)</option>
+                    <option value="en">English (InglÃ©s)</option>
+                    <option value="fr">FranÃ§ais (FrancÃ©s)</option>
+                    <option value="it">Italiano (Italiano)</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="destinatario" class="block text-sm font-semibold text-gray-300 mb-2">Correo del Destinatario (Opcional):</label>
+                <input type="email" id="destinatario" placeholder="ejemplo@empresa.com" class="w-full p-3 rounded-lg border border-gray-600 bg-[#121212] text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+            </div>
+
+            <div>
+                <label for="empresa" class="block text-sm font-semibold text-gray-300 mb-2">Nombre de la Empresa o Responsable:</label>
+                <input type="text" id="empresa" placeholder="Empresa / Responsable" oninput="updateEmail()" class="w-full p-3 rounded-lg border border-gray-600 bg-[#121212] text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+            </div>
+
+            <div>
+                <label for="asunto" class="block text-sm font-semibold text-gray-300 mb-2">Asunto del Correo:</label>
+                <input type="text" id="asunto" class="w-full p-3 rounded-lg border border-gray-600 bg-[#121212] text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+            </div>
+
+            <div>
+                <label for="cuerpo" class="block text-sm font-semibold text-gray-300 mb-2">Cuerpo del Mensaje:</label>
+                <textarea id="cuerpo" class="w-full h-80 p-4 rounded-lg border border-gray-600 bg-[#121212] text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all leading-relaxed resize-y"></textarea>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="destinatario">Correo del Destinatario (Opcional):</label>
-            <input type="email" id="destinatario" placeholder="ejemplo@empresa.com">
-        </div>
-
-        <div class="form-group">
-            <label for="empresa">Nombre de la Empresa o Responsable:</label>
-            <input type="text" id="empresa" placeholder="Empresa / Responsable" oninput="updateEmail()">
-        </div>
-
-        <div class="form-group">
-            <label for="asunto">Asunto del Correo:</label>
-            <input type="text" id="asunto">
-        </div>
-
-        <div class="form-group">
-            <label for="cuerpo">Cuerpo del Mensaje:</label>
-            <textarea id="cuerpo"></textarea>
-        </div>
-
-        <div class="buttons">
-            <button class="btn-copy" onclick="copyToClipboard()">Copiar Mensaje</button>
-            <button class="btn-send" onclick="sendEmail()">Abrir en Gestor de Correo</button>
+        <div class="flex flex-col sm:flex-row gap-4 mt-8">
+            <button onclick="copyToClipboard()" class="flex-1 py-3 px-6 bg-gray-600 hover:bg-gray-500 active:scale-[0.98] text-white font-semibold rounded-lg shadow-md transition-all duration-200 flex justify-center items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                </svg>
+                Copiar Mensaje
+            </button>
+            <button onclick="sendEmail()" class="flex-1 py-3 px-6 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold rounded-lg shadow-md transition-all duration-200 flex justify-center items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                Abrir en Gestor de Correo
+            </button>
         </div>
         
-        <div id="notification">¡Texto copiado al portapapeles!</div>
+        <div id="notification" class="hidden text-center mt-4 text-green-400 font-semibold bg-green-900/30 py-2 rounded-lg border border-green-800/50">
+            Â¡Texto copiado al portapapeles!
+        </div>
     </div>
 
     <script>
         const content = {
             es: {
-                subject: "Innovación en Cronometraje y Simulación 3D para Slot - SlotSoftware",
+                subject: "InnovaciÃ³n en Cronometraje y SimulaciÃ³n 3D para Slot - SlotSoftware",
                 body: `Estimado/a {empresa},
 
-Me pongo en contacto con usted desde SlotSoftware para presentarle nuestra suite de aplicaciones diseñadas para modernizar el automodelismo de slot. 
+Me pongo en contacto con usted desde SlotSoftware para presentarle nuestra suite de aplicaciones diseÃ±adas para modernizar el automodelismo de slot. 
 
-Hemos desarrollado un ecosistema digital de cronometraje, telemetría y simulación 3D que no requiere costoso hardware adicional, ya que funciona directamente a través de la cámara del dispositivo y el navegador web.
-
-Nuestras soluciones principales son:
-
-- KRONO PERSONAL V.4.0: Transforma la cámara en un fotodetector profesional con IA. Ofrece telemetría avanzada, "Modo TV" inmersivo en una segunda pantalla vía nube, análisis de consistencia y ranking global integrado.
-
-- KRONODUAL V4.0: El sistema definitivo para carreras de 1 o 2 jugadores. Detecta el paso de los coches a 30fps e incluye panel de telemetría en tiempo real, alertas por voz, comentarista impulsado por IA y exportación de datos.
-
-- TRACKS, TELEMETRY V.2.0: Herramienta integral para diseñar pistas en 2D y visualizarlas en un potente motor 3D (hasta 8 carriles). Permite simular y ajustar parámetros mecánicos (motor, neumáticos, peso, voltaje) y cuenta con una comunidad web para compartir circuitos.
-
-Estimado/a [Empresa / Responsable],
-
-Me pongo en contacto con usted desde SlotSoftware para presentarle nuestra suite de aplicaciones diseñadas para modernizar el automodelismo de slot. 
-
-Hemos desarrollado un ecosistema digital de cronometraje, telemetría y simulación 3D que no requiere costoso hardware adicional, ya que funciona directamente a través de la cámara del dispositivo y el navegador web.
+Hemos desarrollado un ecosistema digital de cronometraje, telemetrÃ­a y simulaciÃ³n 3D que no requiere costoso hardware adicional, ya que funciona directamente a travÃ©s de la cÃ¡mara del dispositivo y el navegador web.
 
 Nuestras soluciones principales son:
 
-- KRONO PERSONAL V.4.0: Transforma la cámara en un fotodetector profesional con IA. Ofrece telemetría avanzada, "Modo TV" inmersivo en una segunda pantalla vía nube, análisis de consistencia y ranking global integrado.
+- KRONO PERSONAL V.4.0: Transforma la cÃ¡mara en un fotodetector profesional con IA. Ofrece telemetrÃ­a avanzada, "Modo TV" inmersivo en una segunda pantalla vÃ­a nube, anÃ¡lisis de consistencia y ranking global integrado.
 
-- KRONODUAL V4.0: El sistema definitivo para carreras de 1 o 2 jugadores. Detecta el paso de los coches a 30fps e incluye panel de telemetría en tiempo real, alertas por voz, comentarista impulsado por IA y exportación de datos.
+- KRONODUAL V4.0: El sistema definitivo para carreras de 1 o 2 jugadores. Detecta el paso de los coches a 30fps e incluye panel de telemetrÃ­a en tiempo real, alertas por voz, comentarista impulsado por IA y exportaciÃ³n de datos.
 
-- TRACKS, TELEMETRY V.2.0: Herramienta integral para diseñar pistas en 2D y visualizarlas en un potente motor 3D (hasta 8 carriles). Permite simular y ajustar parámetros mecánicos (motor, neumáticos, peso, voltaje) y cuenta con una comunidad web para compartir circuitos.
+- TRACKS, TELEMETRY V.2.0: Herramienta integral para diseÃ±ar pistas en 2D y visualizarlas en un potente motor 3D (hasta 8 carriles). Permite simular y ajustar parÃ¡metros mecÃ¡nicos (motor, neumÃ¡ticos, peso, voltaje) y cuenta con una comunidad web para compartir circuitos.
 
-- SECTOR TIME V.1.0: Representa la cúspide de la ingeniería de software aplicada al mundo del slot y el modelismo de competición. Esta aplicación no es un simple cronómetro; es una suite completa de telemetria basada en visión artificial (Computer Vision) que transforma cualquier cámara web o dispositivo móvil en un sensor de precisión quirúrgica. El sistema utiliza algoritmos de análisis de luminancia en tiempo real para detectar el paso de vehículos por puntos especificos de la pista, eliminando la necesidad de costosos sensores físicos, cableado complejo o modificaciones en la infraestructura del circuito.
+- SECTOR TIME V.1.0: Representa la cÃºspide de la ingenierÃ­a de software aplicada al mundo del slot y el modelismo de competiciÃ³n. Esta aplicaciÃ³n no es un simple cronÃ³metro; es una suite completa de telemetrÃ­a basada en visiÃ³n artificial (Computer Vision) que transforma cualquier cÃ¡mara web o dispositivo mÃ³vil en un sensor de precisiÃ³n quirÃºrgica. El sistema utiliza algoritmos de anÃ¡lisis de luminancia en tiempo real para detectar el paso de vehÃ­culos por puntos especÃ­ficos de la pista, eliminando la necesidad de costosos sensores fÃ­sicos, cableado complejo o modificaciones en la infraestructura del circuito.
 
-Puede explorar nuestro entorno interactivo y catálogo en el siguiente enlace:
-👉 https://slotsoftware.github.io/Web/
+Puede explorar nuestro entorno interactivo y catÃ¡logo en el siguiente enlace:
+ðŸ‘‰ https://slotsoftware.github.io/Web/
 
-Si les interesa probar nuestras aplicaciones sin compromiso, simplemente respondan a este correo solicitando el registro y les enviaremos las claves de activación para que puedan evaluar su funcionamiento. 
+Si les interesa probar nuestras aplicaciones sin compromiso, simplemente respondan a este correo solicitando el registro y les enviaremos las claves de activaciÃ³n para que puedan evaluar su funcionamiento. 
 
-Quedo a su entera disposición para cualquier duda o demostración.
-
-Atentamente,
-
-Albert Closa
-Wsp: 686 16 60 07
-SlotSoftware
-
-Puede explorar nuestro entorno interactivo y catálogo en el siguiente enlace:
-👉 https://slotsoftware.github.io/Web/
-
-Si les interesa probar nuestras aplicaciones sin compromiso, simplemente respondan a este correo solicitando el registro y les enviaremos las claves de activación para que puedan evaluar su funcionamiento. 
-
-Quedo a su entera disposición para cualquier duda o demostración.
+Quedo a su entera disposiciÃ³n para cualquier duda o demostraciÃ³n.
 
 Atentamente,
 
@@ -218,27 +123,29 @@ Wsp: 686 16 60 07
 SlotSoftware`
             },
             ca: {
-                subject: "Innovació en Cronometratge i Simulació 3D per a Slot - SlotSoftware",
+                subject: "InnovaciÃ³ en Cronometratge i SimulaciÃ³ 3D per a Slot - SlotSoftware",
                 body: `Benvolgut/da {empresa},
 
-Em poso en contacte amb vostè des de SlotSoftware per presentar-li la nostra suite d'aplicacions dissenyades per modernitzar l'automodelisme de slot.
+Em poso en contacte amb vostÃ¨ des de SlotSoftware per presentar-li la nostra suite d'aplicacions dissenyades per modernitzar l'automodelisme de slot.
 
-Hem desenvolupat un ecosistema digital de cronometratge, telemetria i simulació 3D que no requereix costós maquinari addicional, ja que funciona directament a través de la càmera del dispositiu i el navegador web.
+Hem desenvolupat un ecosistema digital de cronometratge, telemetria i simulaciÃ³ 3D que no requereix costÃ³s maquinari addicional, ja que funciona directament a travÃ©s de la cÃ mera del dispositiu i el navegador web.
 
-Les nostres solucions principals són:
+Les nostres solucions principals sÃ³n:
 
-- KRONO PERSONAL V.4.0: Transforma la càmera en un fotodetector professional amb IA. Ofereix telemetria avançada, "Mode TV" immersiu en una segona pantalla via núvol, anàlisi de consistència i rànquing global integrat.
+- KRONO PERSONAL V.4.0: Transforma la cÃ mera en un fotodetector professional amb IA. Ofereix telemetria avanÃ§ada, "Mode TV" immersiu en una segona pantalla via nÃºvol, anÃ lisi de consistÃ¨ncia i rÃ nquing global integrat.
 
-- KRONODUAL V4.0: El sistema definitiu per a curses d'1 o 2 jugadors. Detecta el pas dels cotxes a 30fps i inclou panell de telemetria en temps real, alertes per veu, comentarista impulsat per IA i exportació de dades.
+- KRONODUAL V4.0: El sistema definitiu per a curses d'1 o 2 jugadors. Detecta el pas dels cotxes a 30fps i inclou panell de telemetria en temps real, alertes per veu, comentarista impulsat per IA i exportaciÃ³ de dades.
 
-- TRACKS, TELEMETRY V.2.0: Eina integral per dissenyar pistes en 2D i visualitzar-les en un potent motor 3D (fins a 8 carrils). Permet simular i ajustar paràmetres mecànics (motor, pneumàtics, pes, voltatge) i compta amb una comunitat web per compartir circuits.
+- TRACKS, TELEMETRY V.2.0: Eina integral per dissenyar pistes en 2D i visualitzar-les en un potent motor 3D (fins a 8 carrils). Permet simular i ajustar parÃ metres mecÃ nics (motor, pneumÃ tics, pes, voltatge) i compta amb una comunitat web per compartir circuits.
 
-Pot explorar el nostre entorn interactiu i catàleg en el següent enllaç:
-👉 https://slotsoftware.github.io/Web/
+- SECTOR TIME V.1.0: Representa la cÃºspide de l'enginyeria de programari aplicada al mÃ³n de l'slot i el modelisme de competiciÃ³. Aquesta aplicaciÃ³ no Ã©s un simple cronÃ²metre; Ã©s una suite completa de telemetria basada en visiÃ³ artificial (Computer Vision) que transforma qualsevol cÃ mera web o dispositiu mÃ²bil en un sensor de precisiÃ³ quirÃºrgica. El sistema utilitza algorismes d'anÃ lisi de luminÃ ncia en temps real per detectar el pas de vehicles per punts especÃ­fics de la pista, eliminant la necessitat de costosos sensors fÃ­sics, cablejat complex o modificacions en la infraestructura del circuit.
 
-Si els interessa provar les nostres aplicacions sense compromís, simplement responguin a aquest correu sol·licitant el registre i els enviarem les claus d'activació per avaluar-ne el funcionament.
+Pot explorar el nostre entorn interactiu i catÃ leg en el segÃ¼ent enllaÃ§:
+ðŸ‘‰ https://slotsoftware.github.io/Web/
 
-Resto a la seva sencera disposició per a qualsevol dubte o demostració.
+Si els interessa provar les nostres aplicacions sense compromÃ­s, simplement responguin a aquest correu solÂ·licitant el registre i els enviarem les claus d'activaciÃ³ per avaluar-ne el funcionament.
+
+Resto a la seva sencera disposiciÃ³ per a qualsevol dubte o demostraciÃ³.
 
 Atentament,
 
@@ -262,8 +169,10 @@ Our main solutions are:
 
 - TRACKS, TELEMETRY V.2.0: A comprehensive tool to design 2D tracks and visualize them in a powerful 3D engine (up to 8 lanes). It allows simulating and adjusting mechanical parameters (motor, tires, weight, voltage) and features a web community to share circuits.
 
+- SECTOR TIME V.1.0: Represents the pinnacle of software engineering applied to the world of slot cars and competitive modeling. This application is not a simple stopwatch; it is a complete telemetry suite based on Computer Vision that transforms any webcam or mobile device into a sensor of surgical precision. The system uses real-time luminance analysis algorithms to detect vehicles passing through specific points on the track, eliminating the need for expensive physical sensors, complex wiring, or modifications to the track infrastructure.
+
 You can explore our interactive environment and catalog at the following link:
-👉 https://slotsoftware.github.io/Web/
+ðŸ‘‰ https://slotsoftware.github.io/Web/
 
 If you are interested in trying our applications without commitment, simply reply to this email requesting registration and we will send you the activation keys so you can evaluate their performance.
 
@@ -276,27 +185,29 @@ Wsp: +34 686 16 60 07
 SlotSoftware`
             },
             fr: {
-                subject: "Innovation en Chronométrage et Simulation 3D pour Slot - SlotSoftware",
-                body: `Cher/Chère {empresa},
+                subject: "Innovation en ChronomÃ©trage et Simulation 3D pour Slot - SlotSoftware",
+                body: `Cher/ChÃ¨re {empresa},
 
-Je vous contacte de la part de SlotSoftware pour vous présenter notre suite d'applications conçues pour moderniser le modélisme de slot.
+Je vous contacte de la part de SlotSoftware pour vous prÃ©senter notre suite d'applications conÃ§ues pour moderniser le modÃ©lisme de slot.
 
-Nous avons développé un écosystème numérique de chronométrage, télémétrie et simulation 3D qui ne nécessite aucun matériel supplémentaire coûteux, car il fonctionne directement via la caméra de l'appareil et le navigateur web.
+Nous avons dÃ©veloppÃ© un Ã©cosystÃ¨me numÃ©rique de chronomÃ©trage, tÃ©lÃ©mÃ©trie et simulation 3D qui ne nÃ©cessite aucun matÃ©riel supplÃ©mentaire coÃ»teux, car il fonctionne directement via la camÃ©ra de l'appareil et le navigateur web.
 
 Nos principales solutions sont :
 
-- KRONO PERSONAL V.4.0 : Transforme la caméra en un photodétecteur professionnel avec IA. Il offre une télémétrie avancée, un "Mode TV" immersif sur un deuxième écran via le cloud, une analyse de cohérence et un classement global intégré.
+- KRONO PERSONAL V.4.0 : Transforme la camÃ©ra en un photodÃ©tecteur professionnel avec IA. Il offre une tÃ©lÃ©mÃ©trie avancÃ©e, un "Mode TV" immersif sur un deuxiÃ¨me Ã©cran via le cloud, une analyse de cohÃ©rence et un classement global intÃ©grÃ©.
 
-- KRONODUAL V4.0 : Le système définitif pour les courses à 1 ou 2 joueurs. Il détecte le passage des voitures à 30fps et comprend un panneau de télémétrie en temps réel, des alertes vocales, un commentateur propulsé par l'IA et l'exportation de données.
+- KRONODUAL V4.0 : Le systÃ¨me dÃ©finitif pour les courses Ã  1 ou 2 joueurs. Il dÃ©tecte le passage des voitures Ã  30fps et comprend un panneau de tÃ©lÃ©mÃ©trie en temps rÃ©el, des alertes vocales, un commentateur propulsÃ© par l'IA et l'exportation de donnÃ©es.
 
-- TRACKS, TELEMETRY V.2.0 : Outil complet pour concevoir des pistes en 2D et les visualiser dans un puissant moteur 3D (jusqu'à 8 voies). Il permet de simuler et d'ajuster des paramètres mécaniques (moteur, pneus, poids, tension) et dispose d'une communauté web pour partager des circuits.
+- TRACKS, TELEMETRY V.2.0 : Outil complet pour concevoir des pistes en 2D et les visualiser dans un puissant moteur 3D (jusqu'Ã  8 voies). Il permet de simuler et d'ajuster des paramÃ¨tres mÃ©caniques (moteur, pneus, poids, tension) et dispose d'une communautÃ© web pour partager des circuits.
+
+- SECTOR TIME V.1.0 : ReprÃ©sente le summum de l'ingÃ©nierie logicielle appliquÃ©e au monde du slot et du modÃ©lisme de compÃ©tition. Cette application n'est pas un simple chronomÃ¨tre ; c'est une suite complÃ¨te de tÃ©lÃ©mÃ©trie basÃ©e sur la vision par ordinateur (Computer Vision) qui transforme n'importe quelle webcam ou appareil mobile en un capteur d'une prÃ©cision chirurgicale. Le systÃ¨me utilise des algorithmes d'analyse de luminance en temps rÃ©el pour dÃ©tecter le passage des vÃ©hicules par des points spÃ©cifiques de la piste, Ã©liminant le besoin de capteurs physiques coÃ»teux, de cÃ¢blages complexes ou de modifications de l'infrastructure du circuit.
 
 Vous pouvez explorer notre environnement interactif et notre catalogue sur le lien suivant :
-👉 https://slotsoftware.github.io/Web/
+ðŸ‘‰ https://slotsoftware.github.io/Web/
 
-Si vous êtes intéressé à essayer nos applications sans engagement, répondez simplement à cet e-mail en demandant l'inscription et nous vous enverrons les clés d'activation pour évaluer leur fonctionnement.
+Si vous Ãªtes intÃ©ressÃ© Ã  essayer nos applications sans engagement, rÃ©pondez simplement Ã  cet e-mail en demandant l'inscription et nous vous enverrons les clÃ©s d'activation pour Ã©valuer leur fonctionnement.
 
-Je reste à votre entière disposition pour toute question ou démonstration.
+Je reste Ã  votre entiÃ¨re disposition pour toute question ou dÃ©monstration.
 
 Cordialement,
 
@@ -310,18 +221,20 @@ SlotSoftware`
 
 La contatto da SlotSoftware per presentarle la nostra suite di applicazioni progettate per modernizzare il modellismo di slot.
 
-Abbiamo sviluppato un ecosistema digitale di cronometraggio, telemetria e simulazione 3D che non richiede costosi hardware aggiuntivi, poiché funziona direttamente tramite la fotocamera del dispositivo e il browser web.
+Abbiamo sviluppato un ecosistema digitale di cronometraggio, telemetria e simulazione 3D che non richiede costosi hardware aggiuntivi, poichÃ© funziona direttamente tramite la fotocamera del dispositivo e il browser web.
 
 Le nostre soluzioni principali sono:
 
-- KRONO PERSONAL V.4.0: Trasforma la fotocamera in un fotorilevatore professionale con IA. Offre telemetria avanzata, "Modalità TV" immersiva su un secondo schermo tramite cloud, analisi di consistenza e una classifica globale integrata.
+- KRONO PERSONAL V.4.0: Trasforma la fotocamera in un fotorilevatore professionale con IA. Offre telemetria avanzata, "ModalitÃ  TV" immersiva su un secondo schermo tramite cloud, analisi di consistenza e una classifica globale integrata.
 
 - KRONODUAL V4.0: Il sistema definitivo per gare a 1 o 2 giocatori. Rileva il passaggio delle auto a 30fps e include un pannello di telemetria in tempo reale, avvisi vocali, un telecronista basato su IA e l'esportazione dei dati.
 
-- TRACKS, TELEMETRY V.2.0: Strumento completo per progettare piste in 2D e visualizzarle in un potente motore 3D (fino a 8 corsie). Permette di simulare e regolare parametri meccanici (motore, pneumatici, peso, voltaggio) e dispone di una comunità web per condividere circuiti.
+- TRACKS, TELEMETRY V.2.0: Strumento completo per progettare piste in 2D e visualizzarle in un potente motore 3D (fino a 8 corsie). Permette di simulare e regolare parametri meccanici (motore, pneumatici, peso, voltaggio) e dispone di una comunitÃ  web per condividere circuiti.
 
-Può esplorare il nostro ambiente interattivo e catalogo al seguente link:
-👉 https://slotsoftware.github.io/Web/
+- SECTOR TIME V.1.0: Rappresenta l'apice dell'ingegneria del software applicata al mondo delle slot car e del modellismo da competizione. Questa applicazione non Ã¨ un semplice cronometro; Ã¨ una suite completa di telemetria basata sulla visione artificiale (Computer Vision) che trasforma qualsiasi webcam o dispositivo mobile in un sensore di precisione chirurgica. Il sistema utilizza algoritmi di analisi della luminanza in tempo reale per rilevare il passaggio dei veicoli in punti specifici della pista, eliminando la necessitÃ  di costosi sensori fisici, cablaggi complessi o modifiche all'infrastruttura del circuito.
+
+PuÃ² esplorare il nostro ambiente interattivo e catalogo al seguente link:
+ðŸ‘‰ https://slotsoftware.github.io/Web/
 
 Se siete interessati a provare le nostre applicazioni senza impegno, rispondete semplicemente a questa email richiedendo la registrazione e vi invieremo le chiavi di attivazione per valutarne il funzionamento.
 
@@ -352,20 +265,36 @@ SlotSoftware`
 
         function copyToClipboard() {
             const bodyText = document.getElementById('cuerpo').value;
-            // Use execCommand as a fallback for iframe environments where navigator.clipboard might be restricted
-            const textArea = document.createElement("textarea");
-            textArea.value = bodyText;
-            document.body.appendChild(textArea);
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                const notif = document.getElementById('notification');
-                notif.style.display = 'block';
-                setTimeout(() => { notif.style.display = 'none'; }, 3000);
-            } catch (err) {
-                console.error('Failed to copy', err);
+            
+            // Prefer modern Clipboard API if available, fallback to execCommand
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(bodyText).then(() => showNotification());
+            } else {
+                const textArea = document.createElement("textarea");
+                textArea.value = bodyText;
+                // Avoid scrolling to bottom
+                textArea.style.top = "0";
+                textArea.style.left = "0";
+                textArea.style.position = "fixed";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showNotification();
+                } catch (err) {
+                    console.error('Failed to copy', err);
+                }
+                document.body.removeChild(textArea);
             }
-            document.body.removeChild(textArea);
+        }
+
+        function showNotification() {
+            const notif = document.getElementById('notification');
+            notif.classList.remove('hidden');
+            setTimeout(() => { 
+                notif.classList.add('hidden'); 
+            }, 3000);
         }
 
         function sendEmail() {
