@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Correos - SlotSoftware</title>
+    <title>Generador y Control de Correos - SlotSoftware</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -11,7 +11,6 @@
             font-family: 'Inter', sans-serif;
             background-color: #1e1e1e;
         }
-        /* Custom scrollbar for textareas */
         textarea::-webkit-scrollbar {
             width: 8px;
         }
@@ -28,18 +27,150 @@
         }
     </style>
 </head>
-<body class="text-gray-200 min-h-screen flex items-center justify-center p-4 sm:p-8">
+<body class="text-gray-200 min-h-screen flex flex-col items-center justify-start p-4 sm:p-8">
 
-    <div class="max-w-3xl w-full bg-[#2d2d2d] p-6 sm:p-8 rounded-xl shadow-2xl border border-gray-700">
-        <header class="mb-8 text-center">
-            <h1 class="text-3xl font-bold text-gray-300 mb-2">SlotSoftware</h1>
-            <h2 class="text-sm font-medium text-gray-400">Gestor Multiling&uuml;e de Correos Comerciales</h2>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'slotsoftware-crm';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+
+        let db, auth, userId = null;
+        window.trackedEmails = [];
+
+        async function initFirebase() {
+            try {
+                if (Object.keys(firebaseConfig).length > 0) {
+                    const app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                    userId = auth.currentUser?.uid || crypto.randomUUID();
+                    initFirestoreListener();
+                } else {
+                    console.warn("Firebase config not available. Running in local fallback mode.");
+                    userId = "local-user";
+                    loadLocalFallback();
+                }
+            } catch (err) {
+                console.error("Firebase init error:", err);
+                loadLocalFallback();
+            }
+        }
+
+        function initFirestoreListener() {
+            if (!db || !userId) return;
+            const colRef = collection(db, 'artifacts', appId, 'users', userId, 'tracked_emails');
+            onSnapshot(colRef, (snapshot) => {
+                window.trackedEmails = [];
+                snapshot.forEach((docSnap) => {
+                    window.trackedEmails.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                if (typeof renderTrackerTable === 'function') renderTrackerTable();
+            }, (error) => {
+                console.error("Firestore snapshot error:", error);
+            });
+        }
+
+        function loadLocalFallback() {
+            const saved = localStorage.getItem('slotsoftware_tracked_emails');
+            if (saved) {
+                window.trackedEmails = JSON.parse(saved);
+            }
+            if (typeof renderTrackerTable === 'function') renderTrackerTable();
+        }
+
+        window.saveEmailToTracker = async function(emailData) {
+            const record = {
+                destinatario: emailData.destinatario || 'Sin correo',
+                empresa: emailData.empresa || 'Empresa desconocida',
+                idioma: emailData.idioma,
+                asunto: emailData.asunto,
+                enviado: emailData.enviado || false,
+                respondido: emailData.respondido || false,
+                fecha: new Date().toISOString()
+            };
+
+            if (db && userId) {
+                try {
+                    const colRef = collection(db, 'artifacts', appId, 'users', userId, 'tracked_emails');
+                    await addDoc(colRef, record);
+                } catch (e) {
+                    console.error("Error saving to Firestore:", e);
+                }
+            } else {
+                record.id = 'local_' + Date.now();
+                window.trackedEmails.unshift(record);
+                localStorage.setItem('slotsoftware_tracked_emails', JSON.stringify(window.trackedEmails));
+                renderTrackerTable();
+            }
+        }
+
+        window.updateEmailStatus = async function(id, field, value) {
+            if (db && userId && !id.startsWith('local_')) {
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'users', userId, 'tracked_emails', id);
+                    await updateDoc(docRef, { [field]: value });
+                } catch (e) {
+                    console.error("Error updating Firestore:", e);
+                }
+            } else {
+                const item = window.trackedEmails.find(x => x.id === id);
+                if (item) {
+                    item[field] = value;
+                    localStorage.setItem('slotsoftware_tracked_emails', JSON.stringify(window.trackedEmails));
+                    renderTrackerTable();
+                }
+            }
+        }
+
+        window.deleteTrackedEmail = async function(id) {
+            if (db && userId && !id.startsWith('local_')) {
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'users', userId, 'tracked_emails', id);
+                    await deleteDoc(docRef);
+                } catch (e) {
+                    console.error("Error deleting from Firestore:", e);
+                }
+            } else {
+                window.trackedEmails = window.trackedEmails.filter(x => x.id !== id);
+                localStorage.setItem('slotsoftware_tracked_emails', JSON.stringify(window.trackedEmails));
+                renderTrackerTable();
+            }
+        }
+
+        initFirebase();
+    </script>
+
+    <div class="max-w-4xl w-full bg-[#2d2d2d] p-6 sm:p-8 rounded-xl shadow-2xl border border-gray-700">
+        <header class="mb-6 text-center">
+            <h1 class="text-3xl font-bold text-gray-300 mb-1">SlotSoftware</h1>
+            <h2 class="text-sm font-medium text-gray-400">Gestor y Control Comercial de Correos</h2>
         </header>
 
-        <div class="space-y-5">
+        <!-- Navegación por pestañas -->
+        <div class="flex border-b border-gray-700 mb-6">
+            <button onclick="switchTab('generator')" id="tab-generator" class="flex-1 py-3 font-semibold text-center text-blue-400 border-b-2 border-blue-500 transition-all flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                Generador de Correos
+            </button>
+            <button onclick="switchTab('tracker')" id="tab-tracker" class="flex-1 py-3 font-semibold text-center text-gray-400 hover:text-gray-200 border-b-2 border-transparent transition-all flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                Control de Envíos (<span id="counter-badge">0</span>)
+            </button>
+        </div>
+
+        <div id="view-generator" class="space-y-5">
             <div>
                 <label for="idioma" class="block text-sm font-semibold text-gray-300 mb-2">Selecciona el Idioma:</label>
-                <select id="idioma" onchange="updateEmail()" class="w-full p-3 rounded-lg border border-gray-600 bg-[#121212] text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                <select id="idioma" onchange="updateEmail()" class="w-full p-3 rounded-lg border border-gray-600 bg-[#121212] text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
                     <option value="es">Castellano (Espa&ntilde;ol)</option>
                     <option value="ca">Catal&agrave; (Catal&aacute;n)</option>
                     <option value="en">English (Ingl&eacute;s)</option>
@@ -49,206 +180,112 @@
             </div>
 
             <div>
-                <label for="destinatario" class="block text-sm font-semibold text-gray-300 mb-2">Correo del Destinatario (Opcional):</label>
-                <input type="email" id="destinatario" placeholder="ejemplo@empresa.com" class="w-full p-3 rounded-lg border border-gray-600 bg-[#121212] text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                <label for="destinatario" class="block text-sm font-semibold text-gray-300 mb-2">Correo del Destinatario:</label>
+                <input type="email" id="destinatario" placeholder="ejemplo@empresa.com" class="w-full p-3 rounded-lg border border-gray-600 bg-[#121212] text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
             </div>
 
             <div>
                 <label for="empresa" class="block text-sm font-semibold text-gray-300 mb-2">Nombre de la Empresa o Responsable:</label>
-                <input type="text" id="empresa" placeholder="Empresa / Responsable" oninput="updateEmail()" class="w-full p-3 rounded-lg border border-gray-600 bg-[#121212] text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                <input type="text" id="empresa" placeholder="Empresa / Responsable" oninput="updateEmail()" class="w-full p-3 rounded-lg border border-gray-600 bg-[#121212] text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
             </div>
 
             <div>
                 <label for="asunto" class="block text-sm font-semibold text-gray-300 mb-2">Asunto del Correo:</label>
-                <input type="text" id="asunto" class="w-full p-3 rounded-lg border border-gray-600 bg-[#121212] text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                <input type="text" id="asunto" class="w-full p-3 rounded-lg border border-gray-600 bg-[#121212] text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
             </div>
 
             <div>
                 <label for="cuerpo" class="block text-sm font-semibold text-gray-300 mb-2">Cuerpo del Mensaje:</label>
-                <textarea id="cuerpo" class="w-full h-80 p-4 rounded-lg border border-gray-600 bg-[#121212] text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all leading-relaxed resize-y"></textarea>
+                <textarea id="cuerpo" class="w-full h-80 p-4 rounded-lg border border-gray-600 bg-[#121212] text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 leading-relaxed resize-y"></textarea>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                <button onclick="copyToClipboard()" class="flex-1 py-3 px-6 bg-gray-600 hover:bg-gray-500 active:scale-[0.98] text-white font-semibold rounded-lg shadow-md transition-all flex justify-center items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                    Copiar Mensaje
+                </button>
+                <button onclick="sendEmailAndTrack()" class="flex-1 py-3 px-6 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold rounded-lg shadow-md transition-all flex justify-center items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    Abrir en Gestor & Registrar Envíos
+                </button>
             </div>
         </div>
 
-        <div class="flex flex-col sm:flex-row gap-4 mt-8">
-            <button onclick="copyToClipboard()" class="flex-1 py-3 px-6 bg-gray-600 hover:bg-gray-500 active:scale-[0.98] text-white font-semibold rounded-lg shadow-md transition-all duration-200 flex justify-center items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                </svg>
-                Copiar Mensaje
-            </button>
-            <button onclick="sendEmail()" class="flex-1 py-3 px-6 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold rounded-lg shadow-md transition-all duration-200 flex justify-center items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                Abrir en Gestor de Correo
-            </button>
+        <div id="view-tracker" class="hidden space-y-4">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-lg font-semibold text-gray-300">Historial y Estado de Contactos</h3>
+                <span class="text-xs text-gray-400 bg-[#121212] px-3 py-1 rounded-full border border-gray-700">Se guarda automáticamente</span>
+            </div>
+
+            <div class="overflow-x-auto rounded-lg border border-gray-700 bg-[#121212]">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-gray-700 bg-[#1a1a1a] text-xs text-gray-400 uppercase tracking-wider">
+                            <th class="p-3">Empresa / Correo</th>
+                            <th class="p-3">Fecha</th>
+                            <th class="p-3 text-center">Enviado</th>
+                            <th class="p-3 text-center">Respondido</th>
+                            <th class="p-3 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tracker-tbody" class="divide-y divide-gray-800 text-sm">
+                        <!-- Se llena dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="tracker-empty" class="text-center py-12 text-gray-500 hidden">
+                No hay correos registrados todavía. Envía o registra tu primer correo.
+            </div>
         </div>
         
         <div id="notification" class="hidden text-center mt-4 text-green-400 font-semibold bg-green-900/30 py-2 rounded-lg border border-green-800/50">
-            &iexcl;Texto copiado al portapapeles!
+            &iexcl;Acci&oacute;n realizada con &eacute;xitio!
         </div>
     </div>
 
     <script>
-        // Todo el texto está escrito usando códigos Unicode (\x...) para garantizar 
-        // que los acentos NUNCA se rompan, sin importar la configuración del servidor.
         const content = {
             es: {
                 subject: "Innovaci\xF3n en Cronometraje y Simulaci\xF3n 3D para Slot - SlotSoftware",
-                body: `Estimado/a {empresa},
-
-Me pongo en contacto con usted desde SlotSoftware para presentarle nuestra suite de aplicaciones dise\xF1adas para modernizar el automodelismo de slot. 
-
-Hemos desarrollado un ecosistema digital de cronometraje, telemetr\xEDa y simulaci\xF3n 3D que no requiere costoso hardware adicional, ya que funciona directamente a trav\xE9s de la c\xE1mara del dispositivo y el navegador web.
-
-Nuestras soluciones principales son:
-
-- KRONO PERSONAL V.4.0: Transforma la c\xE1mara en un fotodetector profesional con IA. Ofrece telemetr\xEDa avanzada, "Modo TV" inmersivo en una segunda pantalla v\xEDa nube, an\xE1lisis de consistencia y ranking global integrado.
-
-- KRONODUAL V4.0: El sistema definitivo para carreras de 1 o 2 jugadores. Detecta el paso de los coches a 30fps e incluye panel de telemetr\xEDa en tiempo real, alertas por voz, comentarista impulsado por IA y exportaci\xF3n de datos.
-
-- TRACKS, TELEMETRY V.2.0: Herramienta integral para dise\xF1ar pistas en 2D y visualizarlas en un potente motor 3D (hasta 8 carriles). Permite simular y ajustar par\xE1metros mec\xE1nicos (motor, neum\xE1ticos, peso, voltaje) y cuenta con una comunidad web para compartir circuitos.
-
-- SECTOR TIME V.1.0: Representa la c\xFAspide de la ingenier\xEDa de software aplicada al mundo del slot y el modelismo de competici\xF3n. Esta aplicaci\xF3n no es un simple cron\xF3metro; es una suite completa de telemetr\xEDa basada en visi\xF3n artificial (Computer Vision) que transforma cualquier c\xE1mara web o dispositivo m\xF3vil en un sensor de precisi\xF3n quir\xFArgica. El sistema utiliza algoritmos de an\xE1lisis de luminancia en tiempo real para detectar el paso de veh\xEDculos por puntos espec\xEDficos de la pista, eliminando la necesidad de costosos sensores f\xEDsicos, cableado complejo o modificaciones en la infraestructura del circuito.
-
-Puede explorar nuestro entorno interactivo y cat\xE1logo en el siguiente enlace:
-\uD83D\uDC49 https://slotsoftware.github.io/Web/
-
-Si les interesa probar nuestras aplicaciones sin compromiso, simplemente respondan a este correo solicitando el registro y les enviaremos las claves de activaci\xF3n para que puedan evaluar su funcionamiento. 
-
-Quedo a su entera disposici\xF3n para cualquier duda o demostraci\xF3n.
-
-Atentamente,
-
-Albert Closa
-Wsp: 686 16 60 07
-SlotSoftware`
+                body: `Estimado/a {empresa},\n\nMe pongo en contacto con usted desde SlotSoftware para presentarle nuestra suite de aplicaciones dise\xF1adas para modernizar el automodelismo de slot.\n\nHemos desarrollado un ecosistema digital de cronometraje, telemetr\xEDa y simulaci\xF3n 3D que no requiere costoso hardware adicional, ya que funciona directamente a trav\xE9s de la c\xE1mara del dispositivo y el navegador web.\n\nNuestras soluciones principales son:\n\n- KRONO PERSONAL V.4.0: Transforma la c\xE1mara en un fotodetector profesional con IA. Ofrece telemetr\xEDa avanzada, "Modo TV" inmersivo en una segunda pantalla v\xEDa nube, an\xE1lisis de consistencia y ranking global integrado.\n\n- KRONODUAL V4.0: El sistema definitivo para carreras de 1 o 2 jugadores. Detecta el paso de los coches a 30fps e incluye panel de telemetr\xEDa en tiempo real, alertas por voz, comentarista impulsado por IA y exportaci\xF3n de datos.\n\n- TRACKS, TELEMETRY V.2.0: Herramienta integral para dise\xF1ar pistas en 2D y visualizarlas en un potente motor 3D (hasta 8 carriles). Permite simular y ajustar par\xE1metros mec\xE0nicos (motor, neum\xE1ticos, peso, voltaje) y cuenta con una comunidad web para compartir circuitos.\n\n- SECTOR TIME V.1.0: Representa la c\xFAspide de la ingenier\xEDa de software aplicada al mundo del slot y el modelismo de competici\xF3n. Esta aplicaci\xF3n no es un simple cron\xF3metro; es una suite completa de telemetr\xEDa basada en visi\xF3n artificial (Computer Vision) que transforma cualquier c\xE1mara web o dispositivo m\xF3vil en un sensor de precisi\xF3n quir\xFArgica. El sistema utiliza algoritmos de an\xE1lisis de luminancia en tiempo real para detectar el paso de veh\xEDculos por puntos espec\xEDficos de la pista, eliminando la necesidad de costosos sensores f\xEDsicos, cableado complejo o modificaciones en la infraestructura del circuito.\n\nPuede explorar nuestro entorno interactivo y cat\xE1logo en el siguiente enlace:\n\uD83D\uDC49 https://slotsoftware.github.io/Web/\n\nSi les interesa probar nuestras aplicaciones sin compromiso, simplemente respondan a este correo solicitando el registro y les enviaremos las claves de activaci\xF3n para que puedan evaluar su funcionamiento.\n\nQuedo a su entera disposici\xF3n para cualquier duda o demostraci\xF3n.\n\nAtentamente,\n\nAlbert Closa\nWsp: 686 16 60 07\nSlotSoftware`
             },
             ca: {
                 subject: "Innovaci\xF3 en Cronometratge i Simulaci\xF3 3D per a Slot - SlotSoftware",
-                body: `Benvolgut/da {empresa},
-
-Em poso en contacte amb vost\xE8 des de SlotSoftware per presentar-li la nostra suite d'aplicacions dissenyades per modernitzar l'automodelisme de slot.
-
-Hem desenvolupat un ecosistema digital de cronometratge, telemetria i simulaci\xF3 3D que no requereix cost\xF3s maquinari addicional, ja que funciona directament a trav\xE9s de la c\xE0mera del dispositiu i el navegador web.
-
-Les nostres solucions principals s\xF3n:
-
-- KRONO PERSONAL V.4.0: Transforma la c\xE0mera en un fotodetector professional amb IA. Ofereix telemetria avan\xE7ada, "Mode TV" immersiu en una segona pantalla via n\xFAvol, an\xE0lisi de consist\xE8ncia i r\xE0nquing global integrat.
-
-- KRONODUAL V4.0: El sistema definitiu per a curses d'1 o 2 jugadors. Detecta el pas dels cotxes a 30fps i inclou panell de telemetria en temps real, alertes per veu, comentarista impulsat per IA i exportaci\xF3 de dades.
-
-- TRACKS, TELEMETRY V.2.0: Eina integral per dissenyar pistes en 2D i visualitzar-les en un potent motor 3D (fins a 8 carrils). Permet simular i ajustar par\xE0metres mec\xE0nics (motor, pneum\xE0tics, pes, voltatge) i compta amb una comunitat web per compartir circuits.
-
-- SECTOR TIME V.1.0: Representa la c\xFAspide de l'enginyeria de programari aplicada al m\xF3n de l'slot i el modelisme de competici\xF3. Aquesta aplicaci\xF3 no \xE9s un simple cron\xF2metre; \xE9s una suite completa de telemetria basada en visi\xF3 artificial (Computer Vision) que transforma qualsevol c\xE0mera web o dispositiu m\xF2bil en un sensor de precisi\xF3 quir\xFArgica. El sistema utilitza algorismes d'an\xE0lisi de lumin\xE0ncia en temps real per detectar el pas de vehicles per punts espec\xEDfics de la pista, eliminant la necessitat de costosos sensors f\xEDsics, cablejat complex o modificacions en la infraestructura del circuit.
-
-Pot explorar el nostre entorn interactiu i cat\xE0leg en el seg\xFCent enlla\xE7:
-\uD83D\uDC49 https://slotsoftware.github.io/Web/
-
-Si els interessa provar les nostres aplicacions sense comprom\xEDs, simplement responguin a aquest correu sol\xB7licitant el registre i els enviarem les claus d'activaci\xF3 per avaluar-ne el funcionament.
-
-Resto a la seva sencera disposici\xF3 per a qualsevol dubte o demostraci\xF3.
-
-Atentament,
-
-Albert Closa
-Wsp: 686 16 60 07
-SlotSoftware`
+                body: `Benvolgut/da {empresa},\n\nEm poso en contacte amb vost\xE8 des de SlotSoftware per presentar-li la nostra suite d'aplicacions dissenyades per modernitzar l'automodelisme de slot.\n\nHem desenvolupat un ecosistema digital de cronometratge, telemetria i simulaci\xF3 3D que no requereix cost\xF3s maquinari addicional, ja que funciona directament a trav\xE9s de la c\xE0mera del dispositiu i el navegador web.\n\nLes nostres solucions principals s\xF3n:\n\n- KRONO PERSONAL V.4.0: Transforma la c\xE0mera en un fotodetector professional amb IA. Ofereix telemetria avan\xE7ada, "Mode TV" immersiu en una segona pantalla via n\xFAvol, an\xE0lisi de consist\xE8ncia i r\xE0nquing global integrat.\n\n- KRONODUAL V4.0: El sistema definitiu per a curses d'1 o 2 jugadors. Detecta el pas dels cotxes a 30fps i inclou panell de telemetria en temps real, alertes per veu, comentarista impulsat per IA i exportaci\xF3 de dades.\n\n- TRACKS, TELEMETRY V.2.0: Eina integral per dissenyar pistes en 2D i visualitzar-les en un potent motor 3D (fins a 8 carrils). Permet simular i ajustar par\xE0metres mec\xE0nics (motor, pneum\xE0tics, pes, voltatge) i compta amb una comunitat web per compartir circuits.\n\n- SECTOR TIME V.1.0: Representa la c\xFAspide de l'enginyeria de programari aplicada al m\xF3n de l'slot i el modelisme de competici\xF3. Aquesta aplicaci\xF3 no \xE9s un simple cron\xF2metre; \xE9s una suite completa de telemetria basada en visi\xF3 artificial (Computer Vision) que transforma qualsevol c\xE0mera web o dispositiu m\xF2bil en un sensor de precisi\xF3 quir\xFArgica. El sistema utilitza algorismes d'an\xE0lisi de lumin\xE0ncia en temps real per detectar el pas de vehicles per punts espec\xEDfics de la pista, eliminant la necessitat de costosos sensors f\xEDsics, cablejat complex o modificacions en la infraestructura del circuit.\n\nPot explorar el nostre entorn interactiu i cat\xE0leg en el seg\xFCent enlla\xE7:\n\uD83D\uDC49 https://slotsoftware.github.io/Web/\n\nSi els interessa provar les nostres aplicacions sense comprom\xEDs, simplement responguin a aquest correu sol\xB7licitant el registre i els enviarem les claus d'activaci\xF3 per avaluar-ne el funcionament.\n\nResto a la seva sencera disposici\xF3 per a qualsevol dubte o demostraci\xF3.\n\nAtentament,\n\nAlbert Closa\nWsp: 686 16 60 07\nSlotSoftware`
             },
             en: {
                 subject: "Innovation in Timing and 3D Simulation for Slot Cars - SlotSoftware",
-                body: `Dear {empresa},
-
-I am contacting you on behalf of SlotSoftware to present our suite of applications designed to modernize slot car racing.
-
-We have developed a digital ecosystem for timing, telemetry, and 3D simulation that requires no expensive additional hardware, as it works directly through the device's camera and web browser.
-
-Our main solutions are:
-
-- KRONO PERSONAL V.4.0: Transforms the camera into a professional AI photodetector. It offers advanced telemetry, an immersive "TV Mode" on a second screen via the cloud, consistency analysis, and an integrated global ranking.
-
-- KRONODUAL V4.0: The definitive system for 1 or 2 player races. It detects cars passing at 30fps and includes a real-time telemetry panel, voice alerts, an AI-powered commentator, and data export.
-
-- TRACKS, TELEMETRY V.2.0: A comprehensive tool to design 2D tracks and visualize them in a powerful 3D engine (up to 8 lanes). It allows simulating and adjusting mechanical parameters (motor, tires, weight, voltage) and features a web community to share circuits.
-
-- SECTOR TIME V.1.0: Represents the pinnacle of software engineering applied to the world of slot cars and competitive modeling. This application is not a simple stopwatch; it is a complete telemetry suite based on Computer Vision that transforms any webcam or mobile device into a sensor of surgical precision. The system uses real-time luminance analysis algorithms to detect vehicles passing through specific points on the track, eliminating the need for expensive physical sensors, complex wiring, or modifications to the track infrastructure.
-
-You can explore our interactive environment and catalog at the following link:
-\uD83D\uDC49 https://slotsoftware.github.io/Web/
-
-If you are interested in trying our applications without commitment, simply reply to this email requesting registration and we will send you the activation keys so you can evaluate their performance.
-
-I remain at your full disposal for any questions or a demonstration.
-
-Sincerely,
-
-Albert Closa
-Wsp: +34 686 16 60 07
-SlotSoftware`
+                body: `Dear {empresa},\n\nI am contacting you on behalf of SlotSoftware to present our suite of applications designed to modernize slot car racing.\n\nWe have developed a digital ecosystem for timing, telemetry, and 3D simulation that requires no expensive additional hardware, as it works directly through the device's camera and web browser.\n\nOur main solutions are:\n\n- KRONO PERSONAL V.4.0: Transforms the camera into a professional AI photodetector. It offers advanced telemetry, an immersive "TV Mode" on a second screen via the cloud, consistency analysis, and an integrated global ranking.\n\n- KRONODUAL V4.0: The definitive system for 1 or 2 player races. It detects cars passing at 30fps and includes a real-time telemetry panel, voice alerts, an AI-powered commentator, and data export.\n\n- TRACKS, TELEMETRY V.2.0: A comprehensive tool to design 2D tracks and visualize them in a powerful 3D engine (up to 8 lanes). It allows simulating and adjusting mechanical parameters (motor, tires, weight, voltage) and features a web community to share circuits.\n\n- SECTOR TIME V.1.0: Represents the pinnacle of software engineering applied to the world of slot cars and competitive modeling. This application is not a simple stopwatch; it is a complete telemetry suite based on Computer Vision that transforms any webcam or mobile device into a sensor of surgical precision. The system uses real-time luminance analysis algorithms to detect vehicles passing through specific points on the track, eliminating the need for expensive physical sensors, complex wiring, or modifications to the track infrastructure.\n\nYou can explore our interactive environment and catalog at the following link:\n\uD83D\uDC49 https://slotsoftware.github.io/Web/\n\nIf you are interested in trying our applications without commitment, simply reply to this email requesting registration and we will send you the activation keys so you can evaluate their performance.\n\nI remain at your full disposal for any questions or a demonstration.\n\nSincerely,\n\nAlbert Closa\nWsp: +34 686 16 60 07\nSlotSoftware`
             },
             fr: {
                 subject: "Innovation en Chronom\xE9trage et Simulation 3D pour Slot - SlotSoftware",
-                body: `Cher/Ch\xE8re {empresa},
-
-Je vous contacte de la part de SlotSoftware pour vous pr\xE9senter notre suite d'applications con\xE7ues pour moderniser le mod\xE9lisme de slot.
-
-Nous avons d\xE9velopp\xE9 un \xE9cosyst\xE8me num\xE9rique de chronom\xE9trage, t\xE9l\xE9m\xE9trie et simulation 3D qui ne n\xE9cessite aucun mat\xE9riel suppl\xE9mentaire co\xFBteux, car il fonctionne directement via la cam\xE9ra de l'appareil et le navigateur web.
-
-Nos principales solutions sont :
-
-- KRONO PERSONAL V.4.0 : Transforme la cam\xE9ra en un photod\xE9tecteur professionnel avec IA. Il offre une t\xE9l\xE9m\xE9trie avanc\xE9e, un "Mode TV" immersif sur un deuxi\xE8me \xE9cran via le cloud, une analyse de coh\xE9rence et un classement global int\xE9gr\xE9.
-
-- KRONODUAL V4.0 : Le syst\xE8me d\xE9finitif pour les courses \xE0 1 ou 2 joueurs. Il d\xE9tecte le passage des voitures \xE0 30fps et comprend un panneau de t\xE9l\xE9m\xE9trie en temps r\xE9el, des alertes vocales, un commentateur propuls\xE9 par l'IA et l'exportation de donn\xE9es.
-
-- TRACKS, TELEMETRY V.2.0 : Outil complet pour concevoir des pistes en 2D et les visualiser dans un puissant moteur 3D (jusqu'\xE0 8 voies). Il permet de simuler et d'ajuster des param\xE8tres m\xE9caniques (moteur, pneus, poids, tension) et dispose d'une communaut\xE9 web pour partager des circuits.
-
-- SECTOR TIME V.1.0 : Repr\xE9sente le summum de l'ing\xE9nierie logicielle appliqu\xE9e au monde du slot et du mod\xE9lisme de comp\xE9tition. Cette application n'est pas un simple chronom\xE8tre ; c'est une suite compl\xE8te de t\xE9l\xE9m\xE9trie bas\xE9e sur la vision par ordinateur (Computer Vision) qui transforme n'importe quelle webcam ou appareil mobile en un capteur d'une pr\xE9cision chirurgicale. Le syst\xE8me utilise des algorithmes d'analyse de luminance en temps r\xE9el pour d\xE9tecter le passage des v\xE9hicules par des points sp\xE9cifiques de la piste, \xE9liminant le besoin de capteurs physiques co\xFBteux, de c\xE2blages complexes ou de modifications de l'infrastructure du circuit.
-
-Vous pouvez explorer notre environnement interactif et notre catalogue sur le lien suivant :
-\uD83D\uDC49 https://slotsoftware.github.io/Web/
-
-Si vous \xEAtes int\xE9ress\xE9 \xE0 essayer nos applications sans engagement, r\xE9pondez simplement \xE0 cet e-mail en demandant l'inscription et nous vous enverrons les cl\xE9s d'activation pour \xE9valuer leur fonctionnement.
-
-Je reste \xE0 votre enti\xE8re disposition pour toute question ou d\xE9monstration.
-
-Cordialement,
-
-Albert Closa
-Wsp: +34 686 16 60 07
-SlotSoftware`
+                body: `Cher/Ch\xE8re {empresa},\n\nJe vous contacte de la part de SlotSoftware pour vous pr\xE9senter notre suite d'applications con\xE7ues pour moderniser le mod\xE9lisme de slot.\n\nNous avons d\xE9velopp\xE9 un \xE9cosyst\xE8me num\xE9rique de chronom\xE9trage, t\xE9l\xE9m\xE9trie et simulation 3D qui ne n\xE9cessite aucun mat\xE9riel suppl\xE9mentaire co\xFBteux, car il fonctionne directement via la cam\xE9ra de l'appareil et le navigateur web.\n\nNos principales solutions sont :\n\n- KRONO PERSONAL V.4.0 : Transforme la cam\xE9ra en un photod\xE9tecteur professionnel avec IA. Il offre une t\xE9l\xE9m\xE9trie avanc\xE9e, un "Mode TV" immersif sur un deuxi\xE8me \xE9cran via le cloud, une analyse de coh\xE9rence et un classement global int\xE9gr\xE9.\n\n- KRONODUAL V4.0 : Le syst\xE8me d\xE9finitif pour les courses \xE0 1 ou 2 joueurs. Il d\xE9tecte le passage des voitures \xE0 30fps et comprend un panneau de t\xE9l\xE9m\xE9trie en temps r\xE9el, des alertes vocales, un commentateur propuls\xE9 par l'IA et l'exportation de donn\xE9es.\n\n- TRACKS, TELEMETRY V.2.0 : Outil complet pour concevoir des pistes en 2D et les visualiser dans un puissant moteur 3D (jusqu'\xE0 8 voies). Il permet de simuler et d'ajuster des param\xE8tres m\xE9caniques (moteur, pneus, poids, tension) et dispose d'une communaut\xE9 web pour partager des circuits.\n\n- SECTOR TIME V.1.0 : Repr\xE9sente le summum de l'ing\xE9nierie logicielle appliqu\xE9e au monde du slot et du mod\xE9lisme de comp\xE9tition. Cette application n'est pas un simple chronom\xE8tre ; c'est une suite compl\xE8te de t\xE9l\xE9m\xE9trie bas\xE9e sur la vision par ordinateur (Computer Vision) qui transforme n'importe quelle webcam ou appareil mobile en un capteur d'une pr\xE9cision chirurgicale. Le syst\xE8me utilise des algorithmes d'analyse de luminance en temps r\xE9el pour d\xE9tecter le passage des v\xE9hicules par des points sp\xE9cifiques de la piste, \xE9liminant le besoin de capteurs physiques co\xFBteux, de c\xE2blages complexes ou de modifications de l'infrastructure du circuit.\n\nVous pouvez explorer notre environnement interactif et notre catalogue sur le lien suivant :\n\uD83D\uDC49 https://slotsoftware.github.io/Web/\n\nSi vous \xEAtes int\xE9ress\xE9 \xE0 essayer nos applications sans engagement, r\xE9pondez simplement \xE0 cet e-mail en demandant l'inscription et nous vous enverrons les cl\xE9s d'activation pour \xE9valuer leur fonctionnement.\n\nJe reste \xE0 votre enti\xE8re disposition pour toute question ou d\xE9monstration.\n\nCordialement,\n\nAlbert Closa\nWsp: +34 686 16 60 07\nSlotSoftware`
             },
             it: {
                 subject: "Innovazione nel Cronometraggio e Simulazione 3D per Slot - SlotSoftware",
-                body: `Gentile {empresa},
-
-La contatto da SlotSoftware per presentarle la nostra suite di applicazioni progettate per modernizzare il modellismo di slot.
-
-Abbiamo sviluppato un ecosistema digitale di cronometraggio, telemetria e simulazione 3D che non richiede costosi hardware aggiuntivi, poich\xE9 funziona direttamente tramite la fotocamera del dispositivo e il browser web.
-
-Le nostre soluzioni principali sono:
-
-- KRONO PERSONAL V.4.0: Trasforma la fotocamera in un fotorilevatore professionale con IA. Offre telemetria avanzata, "Modalit\xE0 TV" immersiva su un secondo schermo tramite cloud, analisi di consistenza e una classifica globale integrata.
-
-- KRONODUAL V4.0: Il sistema definitivo per gare a 1 o 2 giocatori. Rileva il passaggio delle auto a 30fps e include un pannello di telemetria in tempo reale, avvisi vocali, un telecronista basato su IA e l'esportazione dei dati.
-
-- TRACKS, TELEMETRY V.2.0: Strumento completo per progettare piste in 2D e visualizzarle in un potente motore 3D (fino a 8 corsie). Permette di simulare e regolare parametri meccanici (motore, pneumatici, peso, voltaggio) e dispone di una comunit\xE0 web per condividere circuiti.
-
-- SECTOR TIME V.1.0: Rappresenta l'apice dell'ingegneria del software applicata al mondo delle slot car e del modellismo da competizione. Questa applicazione non \xE8 un semplice cronometro; \xE8 una suite completa di telemetria basata sulla visione artificiale (Computer Vision) che trasforma qualsiasi webcam o dispositivo mobile in un sensore di precisione chirurgica. Il sistema utilizza algoritmi di analisi della luminanza in tempo reale per rilevare il passaggio dei veicoli in punti specifici della pista, eliminando la necessit\xE0 di costosi sensori fisici, cablaggi complessi o modifiche all'infrastruttura del circuito.
-
-Pu\xF2 esplorare il nostro ambiente interattivo e catalogo al seguente link:
-\uD83D\uDC49 https://slotsoftware.github.io/Web/
-
-Se siete interessati a provare le nostre applicazioni senza impegno, rispondete semplicemente a questa email richiedendo la registrazione e vi invieremo le chiavi di attivazione per valutarne il funzionamento.
-
-Resto a sua completa disposizione per qualsiasi domanda o dimostrazione.
-
-Cordiali saluti,
-
-Albert Closa
-Wsp: +34 686 16 60 07
-SlotSoftware`
+                body: `Gentile {empresa},\n\nLa contatto da SlotSoftware per presentarle la nostra suite di applicazioni progettate per modernizzare il modellismo di slot.\n\nAbbiamo sviluppato un ecosistema digitale di cronometraggio, telemetria e simulazione 3D che non richiede costosi hardware aggiuntivi, poich\xE9 funziona direttamente tramite la fotocamera del dispositivo e il browser web.\n\nLe nostre soluzioni principali sono:\n\n- KRONO PERSONAL V.4.0: Trasforma la fotocamera in un fotorilevatore professionale con IA. Offre telemetria avanzata, "Modalit\xE0 TV" immersiva su un secondo schermo tramite cloud, analisi di consistenza e una classifica globale integrata.\n\n- KRONODUAL V4.0: Il sistema definitivo per gare a 1 o 2 giocatori. Rileva il passaggio delle auto a 30fps e include un pannello di telemetria in tempo reale, avvisi vocali, un telecronista basato su IA e l'esportazione dei dati.\n\n- TRACKS, TELEMETRY V.2.0: Strumento completo per progettar piste in 2D e visualizzarle in un potente motore 3D (fino a 8 corsie). Permette di simulare e regolare parametri meccanici (motore, pneumatici, peso, voltaggio) e dispone di una comunit\xE0 web per condividere circuiti.\n\n- SECTOR TIME V.1.0: Rappresenta l'apice dell'ingegneria del software applicata al mondo delle slot car e del modellismo da competizione. Questa applicazione non \xE8 un semplice cronometro; \xE8 una suite completa di telemetria basata sulla visione artificiale (Computer Vision) che trasforma qualsiasi webcam o dispositivo mobile in un sensore di precisione chirurgica. Il sistema utilizza algoritmi di analisi della luminanza in tempo reale per rilevare il passaggio dei veicoli in punti specifici della pista, eliminando la necessit\xE0 di costosi sensori fisici, cablaggi complessi o modifiche all'infrastruttura del circuito.\n\nPu\xF2 esplorare il nostro ambiente interattivo e catalogo al seguente link:\n\uD83D\uDC49 https://slotsoftware.github.io/Web/\n\nSe siete interessati a provare le nostre applicazioni senza impegno, rispondete semplicemente a questa email richiedendo la registrazione e vi invieremo le chiavi di attivazione per valutarne il funzionamento.\n\nResto a sua completa disposizione per qualsiasi domanda o dimostrazione.\n\nCordiali saluti,\n\nAlbert Closa\nWsp: +34 686 16 60 07\nSlotSoftware`
             }
         };
+
+        function switchTab(tab) {
+            const genView = document.getElementById('view-generator');
+            const trackView = document.getElementById('view-tracker');
+            const tabGen = document.getElementById('tab-generator');
+            const tabTrack = document.getElementById('tab-tracker');
+
+            if (tab === 'generator') {
+                genView.classList.remove('hidden');
+                trackView.classList.add('hidden');
+                tabGen.className = "flex-1 py-3 font-semibold text-center text-blue-400 border-b-2 border-blue-500 transition-all flex items-center justify-center gap-2";
+                tabTrack.className = "flex-1 py-3 font-semibold text-center text-gray-400 hover:text-gray-200 border-b-2 border-transparent transition-all flex items-center justify-center gap-2";
+            } else {
+                genView.classList.add('hidden');
+                trackView.classList.remove('hidden');
+                tabTrack.className = "flex-1 py-3 font-semibold text-center text-blue-400 border-b-2 border-blue-500 transition-all flex items-center justify-center gap-2";
+                tabGen.className = "flex-1 py-3 font-semibold text-center text-gray-400 hover:text-gray-200 border-b-2 border-transparent transition-all flex items-center justify-center gap-2";
+                renderTrackerTable();
+            }
+        }
 
         function updateEmail() {
             const idioma = document.getElementById('idioma').value;
@@ -266,21 +303,17 @@ SlotSoftware`
 
         function copyToClipboard() {
             const bodyText = document.getElementById('cuerpo').value;
-            
             if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(bodyText).then(() => showNotification());
+                navigator.clipboard.writeText(bodyText).then(() => showNotification("¡Texto copiado al portapapeles!"));
             } else {
                 const textArea = document.createElement("textarea");
                 textArea.value = bodyText;
-                textArea.style.top = "0";
-                textArea.style.left = "0";
                 textArea.style.position = "fixed";
                 document.body.appendChild(textArea);
-                textArea.focus();
                 textArea.select();
                 try {
                     document.execCommand('copy');
-                    showNotification();
+                    showNotification("¡Texto copiado al portapapeles!");
                 } catch (err) {
                     console.error('Failed to copy', err);
                 }
@@ -288,24 +321,88 @@ SlotSoftware`
             }
         }
 
-        function showNotification() {
+        async function sendEmailAndTrack() {
+            const destinatario = document.getElementById('destinatario').value.trim();
+            const empresa = document.getElementById('empresa').value.trim();
+            const idioma = document.getElementById('idioma').value;
+            const asunto = document.getElementById('asunto').value;
+
+            // Guardar en el CRM de envíos
+            await window.saveEmailToTracker({
+                destinatario: destinatario || 'Sin correo especificado',
+                empresa: empresa || 'Empresa Anónima',
+                idioma: idioma,
+                asunto: asunto,
+                enviado: true,
+                respondido: false
+            });
+
+            // Abrir gestor de correo predeterminado
+            const encDest = encodeURIComponent(destinatario);
+            const encAsunto = encodeURIComponent(asunto);
+            const encCuerpo = encodeURIComponent(document.getElementById('cuerpo').value);
+            
+            window.location.href = `mailto:${encDest}?subject=${encAsunto}&body=${encCuerpo}`;
+            showNotification("¡Correo registrado en el Control de Envíos y abierto!");
+        }
+
+        window.renderTrackerTable = function() {
+            const tbody = document.getElementById('tracker-tbody');
+            const emptyState = document.getElementById('tracker-empty');
+            const badge = document.getElementById('counter-badge');
+            
+            const list = window.trackedEmails || [];
+            badge.innerText = list.length;
+
+            if (list.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            let html = '';
+
+            list.forEach(item => {
+                const dateStr = new Date(item.fecha).toLocaleDateString() + ' ' + new Date(item.fecha).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                html += `
+                    <tr class="hover:bg-[#1f1f1f] transition-all">
+                        <td class="p-3">
+                            <div class="font-semibold text-gray-200">${item.empresa}</div>
+                            <div class="text-xs text-gray-400">${item.destinatario}</div>
+                        </td>
+                        <td class="p-3 text-xs text-gray-400">${dateStr}</td>
+                        <td class="p-3 text-center">
+                            <input type="checkbox" ${item.enviado ? 'checked' : ''} onchange="updateEmailStatus('${item.id}', 'enviado', this.checked)" class="w-4 h-4 accent-blue-500 cursor-pointer">
+                        </td>
+                        <td class="p-3 text-center">
+                            <input type="checkbox" ${item.respondido ? 'checked' : ''} onchange="updateEmailStatus('${item.id}', 'respondido', this.checked)" class="w-4 h-4 accent-green-500 cursor-pointer">
+                        </td>
+                        <td class="p-3 text-center space-x-2">
+                            <button onclick="deleteTrackedEmail('${item.id}')" title="Eliminar registro" class="p-1.5 bg-red-900/40 hover:bg-red-800/60 text-red-300 rounded transition-all">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function showNotification(msg) {
             const notif = document.getElementById('notification');
+            notif.innerText = msg;
             notif.classList.remove('hidden');
             setTimeout(() => { 
                 notif.classList.add('hidden'); 
-            }, 3000);
-        }
-
-        function sendEmail() {
-            const destinatario = document.getElementById('destinatario').value;
-            const asunto = encodeURIComponent(document.getElementById('asunto').value);
-            const cuerpo = encodeURIComponent(document.getElementById('cuerpo').value);
-            
-            window.location.href = `mailto:${destinatario}?subject=${asunto}&body=${cuerpo}`;
+            }, 3500);
         }
 
         // Initialize on load
-        window.onload = updateEmail;
+        window.onload = function() {
+            updateEmail();
+            if (typeof renderTrackerTable === 'function') renderTrackerTable();
+        };
     </script>
 </body>
 </html>
